@@ -28,7 +28,7 @@ function validateTelegramAuth(data) {
 
 async function loginWithTelegram(req, res) {
     try {
-        const telegramData = req.body;
+        const telegramData = req.query;
 
         const authDate = parseInt(telegramData.auth_date, 10);
         const now = Math.floor(Date.now() / 1000);
