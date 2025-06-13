@@ -1,0 +1,63 @@
+<!-- /frontend/views/battle.html -->
+    <div id="battle-view">
+        <!-- Panel lateral de controles -->
+        <div class="battle-controls">
+            <div class="radar-chart">
+            </div>
+          
+            <div class="action-buttons">
+                <button class="action-btn attack" id="btn-basic" title="Atacar">
+                    <i class="fas fa-fist-raised"></i>
+                </button>
+                <button class="action-btn defend" id="btn-defend" title="Defender">
+                    <i class="fas fa-shield-alt"></i>
+                </button>
+                <button class="action-btn magic" id="btn-magic" title="Magia">
+                    <i class="fas fa-hat-wizard"></i>
+                </button>
+            </div>
+            
+            <div class="magic-controls">
+                <button class="magic-btn" id="btn-magic-atk" title="Ataque Mágico">
+                    <i class="fas fa-bolt"></i>
+                </button>
+                <button class="magic-btn" id="btn-buff-atk" title="Buff Ataque">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <button class="magic-btn" id="btn-magic-def" title="Defensa Mágica">
+                    <i class="fas fa-shield-virus"></i>
+                </button>
+                <button class="magic-btn" id="btn-buff-def" title="Buff Defensa">
+                    <i class="fas fa-hard-hat"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Escena de batalla -->
+        <div class="battle-scene">
+            <div class="player-side">
+                <div class="status-bars player-status">
+                    <div class="status-label">
+                        <span>Magia</span>
+                    </div>                   
+                    <div class="status-label">
+                        <span>Magia</span>
+                    </div>
+                </div>
+                
+                <div class="character player-character"></div>
+            </div>
+            
+            <!-- Oponente -->
+            <div class="opponent-side">
+                <div class="status-bars opponent-status">
+                    <div class="status-label">
+                        <span>Salud</span>
+                    </div>
+                </div>
+                <div class="character opponent-character"></div>
+            </div>
+                    
+        <!-- Log de batalla -->
+        <div id="battle-log"></div>
+    </div>

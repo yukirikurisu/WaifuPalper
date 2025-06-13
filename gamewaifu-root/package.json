@@ -1,0 +1,15 @@
+{
+  "name": "game-root",
+  "version": "1.0.0",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "sequelize": "^6.37.7",
+    "pg": "^8.11.0"
+  }
+}
