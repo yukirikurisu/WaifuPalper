@@ -140,18 +140,3 @@ document.querySelector('.continue-btn').addEventListener('click', () => {
     }
 });
 
-function simulateAuth() {
-    // Simulación de datos de usuario
-    const fakeUser = {
-        id: 123456,
-        first_name: "Dev",
-        username: "debug_mode",
-        token: "fake-debug-token"
-    };
-
-    // Guardamos el token simulado
-    localStorage.setItem('authToken', fakeUser.token);
-
-    // Saltamos selección de avatar y lanzamos el juego
-    fadeOutSplashScreen();
-}
