@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const db = require('../db/connection');
+const { withDb } = require('../db/connection');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const { HTTPException } = require('../errors/HTTPException');
