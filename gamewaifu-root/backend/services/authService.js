@@ -40,65 +40,67 @@ async function loginWithTelegram(req, res) {
             throw new HTTPException(401, 'Data validation failed');
         }
 
-        const userQuery = await db.query(
-            `SELECT user_id FROM users WHERE telegram_id = $1`,
-            [telegramData.id]
-        );
-
-        let userId;
-        let isNewUser = false;
-
-        if (userQuery.rowCount === 0) {
-            const newUser = await db.query(
-                `INSERT INTO users (
-                    telegram_id, 
-                    username, 
-                    first_name, 
-                    last_name,
-                    last_login
-                ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-                RETURNING user_id`,
-                [
-                    telegramData.id.toString(),
-                    telegramData.username || '',
-                    telegramData.first_name || '',
-                    telegramData.last_name || null
-                ]
+        await withDb(async (client) => {
+            const userQuery = await client.query(
+                `SELECT user_id FROM users WHERE telegram_id = $1`,
+                [telegramData.id]
             );
 
-            userId = newUser.rows[0].user_id;
-            isNewUser = true;
+            let userId;
+            let isNewUser = false;
 
-            await db.query(
-                `INSERT INTO user_settings (user_id) VALUES ($1)`,
-                [userId]
+            if (userQuery.rowCount === 0) {
+                const newUser = await client.query(
+                    `INSERT INTO users (
+                        telegram_id, 
+                        username, 
+                        first_name, 
+                        last_name,
+                        last_login
+                    ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+                    RETURNING user_id`,
+                    [
+                        telegramData.id.toString(),
+                        telegramData.username || '',
+                        telegramData.first_name || '',
+                        telegramData.last_name || null
+                    ]
+                );
+
+                userId = newUser.rows[0].user_id;
+                isNewUser = true;
+
+                await client.query(
+                    `INSERT INTO user_settings (user_id) VALUES ($1)`,
+                    [userId]
+                );
+
+                await client.query(
+                    `INSERT INTO user_pass_inventory (user_id, pass_type, quantity)
+                     VALUES ($1, 'blue', 1), ($1, 'purple', 0), ($1, 'golden', 0), ($1, 'pity', 0)`,
+                    [userId]
+                );
+            } else {
+                userId = userQuery.rows[0].user_id;
+                await client.query(
+                    `UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = $1`,
+                    [userId]
+                );
+            }
+
+            const token = jwt.sign(
+                { userId, telegramId: telegramData.id },
+                config.jwtSecret,
+                { expiresIn: '7d' }
             );
 
-            await db.query(
-                `INSERT INTO user_pass_inventory (user_id, pass_type, quantity)
-                 VALUES ($1, 'blue', 1), ($1, 'purple', 0), ($1, 'golden', 0), ($1, 'pity', 0)`,
-                [userId]
-            );
-        } else {
-            userId = userQuery.rows[0].user_id;
-            await db.query(
-                `UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = $1`,
-                [userId]
-            );
-        }
-
-        const token = jwt.sign(
-            { userId, telegramId: telegramData.id },
-            config.jwtSecret,
-            { expiresIn: '7d' }
-        );
-
-        res.json({
-            success: true,
-            userId,
-            isNewUser,
-            token
-        });
+            res.json({
+                success: true,
+                userId,
+                isNewUser,
+                token
+            });
+        }, { autocommit: true });
 
     } catch (error) {
         console.error('Telegram auth error:', error);
