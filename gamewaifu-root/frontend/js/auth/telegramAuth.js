@@ -13,8 +13,8 @@ function showTelegramLogin() {
     script.src = "https://telegram.org/js/telegram-widget.js?21";
     
     // Usa variable de entorno
-    script.setAttribute("data-telegram-login", process.env.TELEGRAM_BOT_USERNAME);
-        script.setAttribute("data-size", "large");
+    script.setAttribute("data-telegram-login", "WaifuPalper_bot");
+    script.setAttribute("data-size", "large");
     script.setAttribute("data-radius", "20");
     script.setAttribute("data-userpic", "false");
     script.setAttribute("data-request-access", "write");
