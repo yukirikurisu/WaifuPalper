@@ -20,7 +20,7 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-#close-login-modal {}
+#close-login-modal {
   background: #fff;
   color: #ff758c;
   border: none;
@@ -31,7 +31,7 @@
   font-weight: bold;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
-
+}
   
 /* Estilos generales */
 * {
