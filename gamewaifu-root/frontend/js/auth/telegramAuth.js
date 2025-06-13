@@ -1,4 +1,4 @@
-const { botToken } = require('../config');
+const { botToken } = require('../config/config');
 
 // Función para mostrar el modal de Telegram
 function showTelegramLogin() {
