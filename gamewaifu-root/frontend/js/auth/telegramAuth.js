@@ -6,34 +6,27 @@ function showTelegramLogin() {
   const widgetContainer = document.getElementById('telegram-login-widget');
   widgetContainer.innerHTML = '';
   
-  if (!document.getElementById('telegram-widget-script')) {
-    const script = document.createElement('script');
-    script.id = 'telegram-widget-script';
-    script.async = true;
-    script.src = "https://telegram.org/js/telegram-widget.js?21";
-    
-    // Usa variable de entorno
-    script.setAttribute("data-telegram-login", "WaifuPalper_bot");
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-radius", "20");
-    script.setAttribute("data-userpic", "false");
-    script.setAttribute("data-request-access", "write");
-    script.setAttribute("data-lang", "es");
-    script.setAttribute("data-auth-url", window.location.origin + "/api/auth/telegram");
-    widgetContainer.appendChild(script);
-  }
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = "https://telegram.org/js/telegram-widget.js?21";
+  
+  // Usa variable de entorno
+  script.setAttribute("data-telegram-login", "WaifuPalper_bot");
+  script.setAttribute("data-size", "large");
+  script.setAttribute("data-radius", "20");
+  script.setAttribute("data-userpic", "false");
+  script.setAttribute("data-request-access", "write");
+  script.setAttribute("data-lang", "es");
+  
+  // CAMBIO CRÍTICO: Usar data-onauth en lugar de data-auth-url
+  script.setAttribute("data-onauth", "onTelegramAuth(user)");
+  
+  widgetContainer.appendChild(script);
 }
 
-// Evento para cerrar el modal
-document.getElementById('close-login-modal').addEventListener('click', function() {
-  document.getElementById('telegram-login-modal').style.display = 'none';
-});
-
-// Evento para el botón CONTINUAR
-document.querySelector('.continue-btn').addEventListener('click', showTelegramLogin);
-
-// Función de autenticación (debe ser global)
 window.onTelegramAuth = function(user) {
+  document.getElementById('telegram-login-modal').style.display = 'none';
+  
   fetch('/api/auth/telegram', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -43,7 +36,6 @@ window.onTelegramAuth = function(user) {
   .then(data => {
     if (data.success) {
       localStorage.setItem('authToken', data.token);
-      document.getElementById('telegram-login-modal').style.display = 'none';
       
       if (data.isNewUser) {
         showAvatarSelection();
@@ -52,13 +44,16 @@ window.onTelegramAuth = function(user) {
       }
     } else {
       alert(`Error: ${data.error}`);
+      showTelegramLogin();
     }
   })
   .catch(error => {
     console.error('Auth error:', error);
     alert('Error de conexión con el servidor');
+    showTelegramLogin();
   });
 };
+
 // Mostrar selector de avatar
 function showAvatarSelection() {
     fetch('/api/avatars')
