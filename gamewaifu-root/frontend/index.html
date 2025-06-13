@@ -22,7 +22,23 @@
     <div id="telegram-login-widget"></div>
     <button id="close-login-modal">Cancelar</button>
   </div>
-
+  <!-- Modal para la seleccion de avatar -->
+  <div id="avatar-selection-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Selecciona tu avatar</h2>
+    
+    <div class="avatar-preview-container">
+      <div class="avatar-preview">
+        <img id="selected-avatar" src="" alt="Avatar seleccionado">
+      </div>
+      <p id="username-display"></p>
+    </div>
+    
+    <div id="avatar-container" class="avatar-grid"></div>
+    
+    <button id="confirm-avatar-btn" class="confirm-btn">Aceptar</button>
+  </div>
+   
   <!-- Contenedor principal -->
   <div id="app-container">
     <!-- Panel superior -->
@@ -33,27 +49,29 @@
     </div>
 
     <!-- Panel de juego -->
-     <div id="app"></div>
+    <div id="app"></div>
 
-    <!-- Menú inferior -->
+    <!-- Menú inferior con atributos data-route -->
     <div class="menu-panel">
-      <div class="menu-btn active" data-screen="game">
+      <div class="menu-btn active" data-route="/game">
         <i class="fas fa-gamepad"></i><span>Juego</span>
       </div>
-      <div class="menu-btn" data-screen="profile">
+      <div class="menu-btn" data-route="/profile">
         <i class="fa-solid fa-hat-wizard"></i><span>Perfil</span>
       </div>
-      <div class="menu-btn" data-screen="store">
+      <div class="menu-btn" data-route="/store">
         <i class="fa-solid fa-wand-sparkles"></i><span>Tienda</span>
       </div>
-      <div class="menu-btn" data-screen="character">
+      <div class="menu-btn" data-route="/characters">
         <i class="fas fa-scroll"></i><span>Waifus</span>
       </div>
-      <div class="menu-btn" data-screen="settings">
+      <div class="menu-btn" data-route="/settings">
         <i class="fa-solid fa-dice-d6"></i><span>Ajustes</span>
       </div>
     </div>
-  <script src="js/app.js"></script>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
   <script src="js/auth/telegramAuth.js"></script>
 </body>
 </html>

@@ -4,16 +4,24 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 class ThreeApp {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.character = null;
-        this.mixer = null;
-        this.clock = new THREE.Clock();
+        if (!this.container) {
+            console.error(`Contenedor con ID '${containerId}' no encontrado`);
+            return;
+        }
         
-        this.init();
-    }
-    
+        // Crear canvas dinámicamente
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = 'game-canvas';
+        this.container.appendChild(this.canvas);
+        
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer({ 
+            canvas: this.canvas,
+            antialias: true, 
+            alpha: true 
+        });
+           
     init() {
         // Configurar renderizador
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
