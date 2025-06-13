@@ -111,6 +111,113 @@ body {
   font-weight: bold;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+/* Modal de selección de avatar */
+#avatar-selection-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+#avatar-selection-modal .modal-content {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #4cc9f0;
+}
+
+.avatar-preview-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #2d00f7, #ff00c8);
+  margin: 0 auto 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(76, 201, 240, 0.5);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#username-display {
+  font-size: 1.5rem;
+  color: #f8f9fa;
+  text-shadow: 0 0 10px rgba(76, 201, 240, 0.8);
+  margin-top: 10px;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+.avatar-option {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  object-fit: cover;
+  border: 2px solid transparent;
+}
+
+.avatar-option:hover {
+  transform: scale(1.1);
+  border-color: #4cc9f0;
+  box-shadow: 0 0 15px rgba(76, 201, 240, 0.7);
+}
+
+.avatar-option.selected {
+  border-color: #b5179e;
+  box-shadow: 0 0 20px rgba(181, 23, 158, 0.8);
+  transform: scale(1.1);
+}
+
+.confirm-btn {
+  background: linear-gradient(45deg, #4361ee, #3a0ca3);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+}
+
+.confirm-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(67, 97, 238, 0.6);
+}
 
 /* Panel de juego */
 .game-container {

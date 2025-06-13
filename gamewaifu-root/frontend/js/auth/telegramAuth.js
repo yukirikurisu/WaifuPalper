@@ -17,8 +17,7 @@ function showTelegramLogin() {
   script.setAttribute("data-userpic", "false");
   script.setAttribute("data-request-access", "write");
   script.setAttribute("data-lang", "es");
-  
-  // CAMBIO CRÍTICO: Usar data-onauth en lugar de data-auth-url
+ 
   script.setAttribute("data-onauth", "onTelegramAuth(user)");
   
   widgetContainer.appendChild(script);
@@ -36,6 +35,7 @@ window.onTelegramAuth = function(user) {
   .then(data => {
     if (data.success) {
       localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userId', data.userId);
       
       if (data.isNewUser) {
         showAvatarSelection();
@@ -54,43 +54,80 @@ window.onTelegramAuth = function(user) {
   });
 };
 
-// Mostrar selector de avatar
+// Mostrar selector de avatar (solo para nuevos usuarios)
 function showAvatarSelection() {
-    fetch('/api/avatars')
-    .then(response => response.json())
-    .then(avatars => {
-        const container = document.getElementById('avatar-container');
-        container.innerHTML = '';
-        
-        avatars.forEach(avatar => {
-            const img = document.createElement('img');
-            img.src = avatar.url;
-            img.className = 'avatar-option';
-            img.onclick = () => selectAvatar(avatar.id);
-            container.appendChild(img);
-        });
-        
-        document.getElementById('avatar-selection-modal').style.display = 'flex';
+  const avatarModal = document.getElementById('avatar-selection-modal');
+  if (!avatarModal) {
+    fadeOutSplashScreen();
+    return;
+  }
+  
+  fetch('/api/avatars')
+  .then(response => response.json())
+  .then(avatars => {
+    const container = document.getElementById('avatar-container');
+    if (!container) {
+      fadeOutSplashScreen();
+      return;
+    }
+    
+    container.innerHTML = '';
+    
+    avatars.forEach(avatar => {
+      const img = document.createElement('img');
+      img.src = avatar.url;
+      img.className = 'avatar-option';
+      img.dataset.id = avatar.id;
+      
+      img.onclick = () => {
+        document.getElementById('selected-avatar').src = avatar.url;
+        localStorage.setItem('selectedAvatarId', avatar.id);
+      };
+      
+      container.appendChild(img);
     });
+    
+    const telegramData = JSON.parse(localStorage.getItem('telegramUser') || '{}');
+    if (telegramData.first_name) {
+      document.getElementById('username-display').textContent = telegramData.first_name;
+    }
+    
+    // Configurar botón de confirmación
+    document.getElementById('confirm-avatar-btn').onclick = () => {
+      const avatarId = localStorage.getItem('selectedAvatarId');
+      if (avatarId) {
+        updateUserAvatar(avatarId);
+      } else {
+        alert('Por favor selecciona un avatar');
+      }
+    };
+    
+    // Mostrar el modal
+    avatarModal.style.display = 'flex';
+  })
+  .catch(() => fadeOutSplashScreen());
 }
 
-// Seleccionar avatar
-function selectAvatar(avatarId) {
-    fetch('/api/user/avatar', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ avatar: avatarId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('avatar-selection-modal').style.display = 'none';
-            fadeOutSplashScreen();
-        }
-    });
+// Actualizar solo el avatar del usuario
+function updateUserAvatar(avatarId) {
+  fetch('/api/user/avatar', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    },
+    body: JSON.stringify({ avatar: avatarId })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      localStorage.removeItem('selectedAvatarId');
+      
+      document.getElementById('avatar-selection-modal').style.display = 'none';
+      fadeOutSplashScreen();
+    }
+  })
+  .catch(() => fadeOutSplashScreen());
 }
 
 // Transición a la pantalla de juego
