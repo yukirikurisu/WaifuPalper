@@ -8,7 +8,7 @@ module.exports = {
     host:     process.env.DB_HOST,
     port:     process.env.DB_PORT || 5432,
     dialect:  'postgres',
-    logging:  false,            // o console.log para ver queries
+    logging:  false,
     pool: {
       max: 10,
       min: 0,
@@ -32,5 +32,11 @@ module.exports = {
       acquire: 30000,
       idle: 10000
     }
+  },
+  // Variables de seguridad y Telegram
+  jwtSecret: process.env.JWT_SECRET,
+  telegram: {
+    botToken: process.env.TELEGRAM_BOT_TOKEN,
+    botUsername: process.env.TELEGRAM_BOT_USERNAME
   }
 };
