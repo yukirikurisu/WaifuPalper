@@ -1,27 +1,41 @@
+/* CORREGIR ESTILOS DEL MODAL */
 #telegram-login-modal {
-  display: none;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0,0,0,0.8);
-  z-index: 100;
-  display: flex; /* ← aquí */
+  z-index: 2000; /* Aumentar z-index para que esté sobre splash */
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  /* REMOVER display: flex duplicado */
+  display: none; /* Inicialmente oculto */
 }
+
 #telegram-login-widget {
   background: #fff;
   padding: 20px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
+
 #close-login-modal {
-  padding: 8px 12px;
+  padding: 10px 20px;
   background: #f44336;
   color: #fff;
   border: none;
-  border-radius: 3px;
+  border-radius: 30px;
   cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#close-login-modal:hover {
+  background: #d32f2f;
+  transform: scale(1.05);
 }
   
 /* Estilos generales */

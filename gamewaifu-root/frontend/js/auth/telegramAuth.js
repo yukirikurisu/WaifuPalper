@@ -1,37 +1,64 @@
-function onTelegramAuth(user) {
-    fetch('/api/auth/telegram', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Guardar token
-            localStorage.setItem('authToken', data.token);
-            
-            // Ocultar modal de Telegram
-            document.getElementById('telegram-login-modal').style.display = 'none';
-            
-            if (data.isNewUser) {
-                // Mostrar selector de avatar
-                showAvatarSelection();
-            } else {
-                // Iniciar juego directamente
-                fadeOutSplashScreen();
-            }
-        } else {
-            alert(`Error: ${data.error}`);
-        }
-    })
-    .catch(error => {
-        console.error('Auth error:', error);
-        alert('Error de conexión con el servidor');
-    });
+// Función para mostrar el modal de Telegram
+function showTelegramLogin() {
+  const loginModal = document.getElementById('telegram-login-modal');
+  loginModal.style.display = 'flex';
+  
+  // Limpiar widget existente
+  const widgetContainer = document.getElementById('telegram-login-widget');
+  widgetContainer.innerHTML = '';
+  
+  // Crear script de Telegram solo si no existe
+  if (!document.getElementById('telegram-widget-script')) {
+    const script = document.createElement('script');
+    script.id = 'telegram-widget-script';
+    script.async = true;
+    script.src = "https://telegram.org/js/telegram-widget.js?21";
+    script.setAttribute("data-telegram-login", "WaifuPalper_bot");
+    script.setAttribute("data-size", "large");
+    script.setAttribute("data-radius", "20");
+    script.setAttribute("data-userpic", "false");
+    script.setAttribute("data-request-access", "write");
+    script.setAttribute("data-lang", "es");
+    script.setAttribute("data-auth-url", window.location.origin + "/api/auth/telegram");
+    widgetContainer.appendChild(script);
+  }
 }
 
-window.onTelegramAuth = onTelegramAuth;
+// Evento para cerrar el modal
+document.getElementById('close-login-modal').addEventListener('click', function() {
+  document.getElementById('telegram-login-modal').style.display = 'none';
+});
 
+// Evento para el botón CONTINUAR
+document.querySelector('.continue-btn').addEventListener('click', showTelegramLogin);
+
+// Función de autenticación (debe ser global)
+window.onTelegramAuth = function(user) {
+  fetch('/api/auth/telegram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(user)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      localStorage.setItem('authToken', data.token);
+      document.getElementById('telegram-login-modal').style.display = 'none';
+      
+      if (data.isNewUser) {
+        showAvatarSelection();
+      } else {
+        fadeOutSplashScreen();
+      }
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  })
+  .catch(error => {
+    console.error('Auth error:', error);
+    alert('Error de conexión con el servidor');
+  });
+};
 // Mostrar selector de avatar
 function showAvatarSelection() {
     fetch('/api/avatars')
@@ -120,23 +147,4 @@ async function initGame() {
     }
 }
 
-// Widget de Telegram
-document.querySelector('.continue-btn').addEventListener('click', () => {
-    const loginModal = document.getElementById('telegram-login-modal');
-    loginModal.style.display = 'flex';
-    
-    if (!document.getElementById('telegram-widget-script')) {
-        const script = document.createElement('script');
-        script.id = 'telegram-widget-script';
-        script.async = true;
-        script.src = "https://telegram.org/js/telegram-widget.js?15";
-        script.setAttribute("data-telegram-login", "WaifuPalper_bot");
-        script.setAttribute("data-size", "large");
-        script.setAttribute("data-userpic", "false");
-        script.setAttribute("data-request-access", "write");
-        script.setAttribute("data-lang", "es");
-        script.setAttribute("data-callback", "onTelegramAuth");
-        document.getElementById('telegram-login-widget').appendChild(script);
-    }
-});
 
