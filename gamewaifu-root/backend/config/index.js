@@ -33,7 +33,7 @@ module.exports = {
   // Telegram
   telegram: {
     botToken:    process.env.TELEGRAM_BOT_TOKEN,
-    botUsername: process.env.TELEGRAM_BOT_USERNAME.replace(/^@/, ''),
+    botUsername: process.env.TELEGRAM_BOT_USERNAME
   },
 
   // Lógica de juego
