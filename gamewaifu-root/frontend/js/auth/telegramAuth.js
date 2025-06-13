@@ -5,18 +5,18 @@ function showTelegramLogin() {
   const loginModal = document.getElementById('telegram-login-modal');
   loginModal.style.display = 'flex';
   
-  // Limpiar widget existente
   const widgetContainer = document.getElementById('telegram-login-widget');
   widgetContainer.innerHTML = '';
   
-  // Crear script de Telegram solo si no existe
   if (!document.getElementById('telegram-widget-script')) {
     const script = document.createElement('script');
     script.id = 'telegram-widget-script';
     script.async = true;
     script.src = "https://telegram.org/js/telegram-widget.js?21";
-    script.setAttribute("data-telegram-login", "WaifuPalper_bot");
-    script.setAttribute("data-size", "large");
+    
+    // Usa variable de entorno
+    script.setAttribute("data-telegram-login", process.env.TELEGRAM_BOT_USERNAME);
+        script.setAttribute("data-size", "large");
     script.setAttribute("data-radius", "20");
     script.setAttribute("data-userpic", "false");
     script.setAttribute("data-request-access", "write");
