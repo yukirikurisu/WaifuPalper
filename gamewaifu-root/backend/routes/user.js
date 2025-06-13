@@ -1,11 +1,11 @@
-const db = require('../db/connection');
 const express = require('express');
 const router = express.Router();
 const userService = require('../services/userService');
 const authMiddleware = require('../middleware/auth');
+const db = require('../db/connection');
 
 // Obtener datos del usuario autenticado
-router.get('/me', authMiddleware, async (req, res) => { ... });
+router.get('/me', authMiddleware, async (req, res) => {
   const { userId } = req.user;
 
   try {
@@ -25,11 +25,7 @@ router.get('/me', authMiddleware, async (req, res) => { ... });
   }
 });
 
-module.exports = router;
-
 // Actualizar avatar del usuario
 router.put('/avatar', authMiddleware, userService.updateAvatar);
 
 module.exports = router;
-
-
