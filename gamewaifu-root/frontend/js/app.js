@@ -11,7 +11,7 @@ if (closeModalBtn) {
   });
 }
 
-// Configuración de rutas y controladores
+
 const routes = {
   '/': {
     view: 'home',
@@ -28,86 +28,57 @@ const routes = {
     view: 'profile',
     controller: async () => {
       const module = await import('./profile.js');
-      return new module.ProfileController();
+      return new module.profileService();
     }
   },
   '/characters': {
     view: 'characters',
     controller: async () => {
       const module = await import('./characters.js');
-      return new module.CharactersController();
+      return new module.charactersService();
     }
   },
   '/market': {
     view: 'market',
     controller: async () => {
       const module = await import('./market.js');
-      return new module.MarketController();
+      return new module.marketService();
     }
   },
   '/pass': {
     view: 'pass',
     controller: async () => {
       const module = await import('./pass.js');
-      return new module.PassController();
+      return new module.passService();
     }
   },
   '/config': {
     view: 'config',
     controller: async () => {
       const module = await import('./config.js');
-      return new module.ConfigController();
+      return new module.configService();
     }
   },
   '/game': {
     view: 'game',
     controller: async () => {
-      await initGame();
-    }
+      const module = await import('./StaticApp.js');
+      return new module.gameService();
   },
   '404': {
     view: '404',
     controller: null
   }
-};
-
-// Función para inicializar el juego (se llamará cuando se cargue la vista /game)
-async function initGame() {
-  try {
-    // Cargar datos del usuario
-    const userResponse = await fetch('/api/user/me', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-    });
-    const userData = await userResponse.json();
-    
-    // Cargar personaje activo
-    const charResponse = await fetch('/api/characters/active', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-    });
-    const charData = await charResponse.json();
-    
-    // Inicializar Three.js
-    const gameApp = new ThreeApp('game-container');
-    
-    // Configurar escena según el personaje
-    gameApp.setCharacter(charData.glbModelUrl, charData.animationProperties);
-    
-    // Iniciar loop de juego
-    gameApp.startGameLoop();
-    
-  } catch (error) {
-    console.error('Game initialization error:', error);
-  }
-}
+},
 
 // Enrutador principal
 async function router() {
-  const path = window.location.pathname;
-  const route = routes[path] || routes['404'];
+  const path = window.location.pathname,
+  const route = routes[path] || routes['404'],
   
   try {
     // Cargar la vista HTML
-    const res = await fetch(`/frontend/views/${route.view}.html`);
+    const res = await fetch(`/frontend/views/${route.view}.html`),
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
     
@@ -146,10 +117,7 @@ function initApp() {
   
   // Botón continuar
   if (continueBtn) {
-    continueBtn.addEventListener('click', () => {
-      if (localStorage.getItem('authToken')) {
-        navigate('/game');
-      } else {
+    continueBtn.addEventListener('click', () => 
         showTelegramLogin();
       }
     });
