@@ -1,7 +1,7 @@
-import StaticApp from '../game/StaticApp.js';
-// Función para mostrar el modal de Telegram
-function showTelegramLogin() {
+export function showTelegramLogin() {
   const loginModal = document.getElementById('telegram-login-modal');
+  if (!loginModal) return;
+  
   loginModal.style.display = 'flex';
   
   const widgetContainer = document.getElementById('telegram-login-widget');
@@ -24,6 +24,7 @@ function showTelegramLogin() {
   widgetContainer.appendChild(script);
 }
 
+// Mantener esta función global para el widget de Telegram
 window.onTelegramAuth = function(user) {
   document.getElementById('telegram-login-modal').style.display = 'none';
   
@@ -37,6 +38,7 @@ window.onTelegramAuth = function(user) {
     if (data.success) {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('userId', data.userId);
+      localStorage.setItem('telegramUser', JSON.stringify(user));
       
       if (data.isNewUser) {
         showAvatarSelection();

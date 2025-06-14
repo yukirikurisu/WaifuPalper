@@ -1,3 +1,6 @@
+// Importar la función showTelegramLogin desde telegramAuth.js
+import { showTelegramLogin } from './auth/telegramAuth.js';
+
 // Elements
 const splashScreen = document.getElementById('splash-screen');
 const continueBtn = document.querySelector('.continue-btn');
@@ -7,11 +10,11 @@ const closeModalBtn = document.getElementById('close-login-modal');
 // Cerrar modal
 if (closeModalBtn) {
   closeModalBtn.addEventListener('click', () => {
-    loginModal.style.display = 'none';
+    if (loginModal) loginModal.style.display = 'none';
   });
 }
 
-
+// Rutas de la aplicación
 const routes = {
   '/': {
     view: 'home',
@@ -72,6 +75,7 @@ const routes = {
   }
 };
 
+// Router principal
 async function router() {
   const path = window.location.pathname;
   const route = routes[path] || routes['404'];
@@ -79,6 +83,8 @@ async function router() {
   try {
     // Cargar la vista HTML
     const res = await fetch(`/frontend/views/${route.view}.html`);
+    if (!res.ok) throw new Error('Vista no encontrada');
+    
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
     
@@ -88,10 +94,9 @@ async function router() {
     }
   } catch (err) {
     console.error('Error loading view:', err);
-    document.getElementById('app').innerHTML = '<h1>Error loading view</h1>';
+    document.getElementById('app').innerHTML = '<h1>Error al cargar la vista</h1>';
   }
 }
-
 
 // Función para navegar
 function navigate(path) {
@@ -114,16 +119,13 @@ function initApp() {
         navigate(route);
       }
     });
-
-    // Botón continuar
-    if (continueBtn) {
-      continueBtn.addEventListener('click', () => {
-        showTelegramLogin();
-      });
-    }
   });
-}
 
+  // Botón continuar
+  if (continueBtn) {
+    continueBtn.addEventListener('click', showTelegramLogin);
+  }
+}
 
 // Eventos globales
 window.addEventListener('popstate', router);
@@ -134,7 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Si ya está autenticado, ocultar splash screen
 if (localStorage.getItem('authToken')) {
-  splashScreen.style.display = 'none';
-  document.getElementById('app-container').style.display = 'flex';
+  if (splashScreen) splashScreen.style.display = 'none';
+  
+  const appContainer = document.getElementById('app-container');
+  if (appContainer) appContainer.style.display = 'flex';
+  
   navigate('/game');
 }
