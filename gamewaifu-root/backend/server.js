@@ -14,7 +14,7 @@ const ResentService = require('./services/resentService');
 const characterRoutes = require('./routes/characters');
 const app = express();
 const PORT = process.env.PORT || 5000;
-const config = require('./config/config');
+const config = require('./config');
 
 // Middleware
 app.use(cors({ 

@@ -4,7 +4,7 @@ const config = require('../config');
 
 class ClickService {
   async recordClickSession(userId, userCharacterId, clickCount) {
-    return db.runInTransaction(async (client) => {
+    return db.withDb(async (client) => {
       // Validar parámetros
       if (!userCharacterId || !clickCount || clickCount <= 0) {
         throw new HTTPException(400, 'Parámetros inválidos para la sesión de clics');
