@@ -98,7 +98,8 @@ const routes = {
         };
 
         // Importar e instanciar StaticApp con el nuevo ID de contenedor
-        const { default: StaticApp } = await import('./game/StaticApp.js');
+        const StaticAppModule = await import('./game/StaticApp.js');
+        const StaticApp = StaticAppModule.default; 
         const gameApp = new StaticApp('character-container', characterData, userData.user_id);
         
         // Esperar a que el juego esté inicializado

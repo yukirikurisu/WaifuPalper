@@ -213,3 +213,4 @@ class StaticApp {
     }
   }
 }
+export default StaticApp;
