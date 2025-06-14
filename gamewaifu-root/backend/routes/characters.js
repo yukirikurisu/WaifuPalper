@@ -41,3 +41,5 @@ router.get('/active', authMiddleware, async (req, res) => {
     });
   }
 });
+
+module.exports = router;
