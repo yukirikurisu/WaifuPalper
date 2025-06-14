@@ -148,7 +148,7 @@ export default class StaticApp {
             clickCount: this.sessionClicks
         };
         
-        fetch('/api/click-sessions', {
+        fetch('/api/clicks/sessions', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',

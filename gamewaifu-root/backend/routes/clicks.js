@@ -3,7 +3,7 @@ const router = express.Router();
 const ClickService = require('../services/clickService');
 const authMiddleware = require('../middleware/auth');
 
-router.post('/click-sessions', authMiddleware, async (req, res) => {
+router.post('/sessions', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { characterId, clickCount } = req.body;
