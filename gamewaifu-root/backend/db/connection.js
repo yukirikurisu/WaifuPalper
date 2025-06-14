@@ -26,6 +26,11 @@ function getConnection() {
   return pool.connect(); 
 }
 
+async function query(text, params) {
+  initializePool();
+  return pool.query(text, params);
+}
+
 async function withDb(callback, { autocommit = false } = {}) {
   const client = await getConnection();
   try {
@@ -47,6 +52,7 @@ function closeAllConnections() {
 module.exports = {
   initializePool,
   getConnection,
+  query,
   withDb,
   closeAllConnections
 };
