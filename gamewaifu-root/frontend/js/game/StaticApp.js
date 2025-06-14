@@ -184,8 +184,3 @@ export default class StaticApp {
         console.warn('¡Personaje resentido! El amor ganado se reduce al 10%');
         // Implementar UI de advertencia aquí
     }
-    
-    sendPendingSession() {
-        if (this.sessionClicks > 0) this.sendClickSession();
-    }
-}
