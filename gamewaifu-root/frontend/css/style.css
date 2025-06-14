@@ -294,21 +294,62 @@ body {
   text-align: left; 
 }
 
-/* Áreas de clic */
 .click-area {
   position: absolute;
-  top: 0;
-  height: 100%;
-  width: 50%;
-  z-index: 15; /* Encima de la imagen pero debajo del contador */
+  bottom: 70px; /
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  background: rgba(230, 222, 222, 0.3); 
+  z-index: 15;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 15px rgba(255, 182, 193, 0.3);
 }
 
 .click-area.left {
-  left: 0;
+  left: calc(35% - 40px);
 }
 
 .click-area.right {
-  right: 0;
+  right: calc(35% - 40px);
+}
+
+/* Animación de parpadeo */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(253, 116, 136, 0.3);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 105, 180, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 105, 180, 0);
+  }
+}
+
+/* Efecto al hacer clic */
+.click-area:active {
+  animation: none;
+  transform: scale(0.95);
+  background: rgba(255, 20, 147, 0.5);
+}
+
+/* Instrucciones sobrepuestas */
+.instructions {
+  position: absolute;
+  bottom: 70px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  z-index: 20; /* Encima de las áreas de clic */
+  pointer-events: none; /* Permite clics a través del texto */
 }
 
 .instructions {
