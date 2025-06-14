@@ -16,7 +16,12 @@ exports.getActiveCharacter = async (userId) => {
     }
 
     const character = result.rows[0];
-    
+    return character;
+  } catch (err) {
+    throw new HTTPException(500, 'Error al obtener el personaje activo');
+  }
+};
+
 class CharacterService {
     // Asignar personaje mediante pase
     async assignCharacterFromPass(passId) {
@@ -271,7 +276,6 @@ class CharacterService {
     }
 }
 
-module.exports = new CharacterService();
     // Encontrar oponente para batalla
     async findBattleOpponent(userCharacterId) {
         const character = await db.query(
