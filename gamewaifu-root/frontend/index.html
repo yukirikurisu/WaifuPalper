@@ -22,23 +22,25 @@
     <div id="telegram-login-widget"></div>
     <button id="close-login-modal">Cancelar</button>
   </div>
-  <!-- Modal para la seleccion de avatar -->
+  
+  <!-- Modal para la selección de avatar -->
   <div id="avatar-selection-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h2>Selecciona tu avatar</h2>
-    
-    <div class="avatar-preview-container">
-      <div class="avatar-preview">
-        <img id="selected-avatar" src="" alt="Avatar seleccionado">
+    <div class="modal-content">
+      <h2>Selecciona tu avatar</h2>
+      
+      <div class="avatar-preview-container">
+        <div class="avatar-preview">
+          <img id="selected-avatar" src="" alt="Avatar seleccionado">
+        </div>
+        <p id="username-display"></p>
       </div>
-      <p id="username-display"></p>
+      
+      <div id="avatar-container" class="avatar-grid"></div>
+      
+      <button id="confirm-avatar-btn" class="confirm-btn">Aceptar</button>
     </div>
-    
-    <div id="avatar-container" class="avatar-grid"></div>
-    
-    <button id="confirm-avatar-btn" class="confirm-btn">Aceptar</button>
   </div>
-   
+
   <!-- Contenedor principal -->
   <div id="app-container">
     <!-- Panel superior -->
@@ -72,5 +74,6 @@
   </div>
 
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="/js/game/StaticApp.js"></script>
 </body>
 </html>

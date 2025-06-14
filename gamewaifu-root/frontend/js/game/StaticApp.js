@@ -1,15 +1,30 @@
 export default class StaticApp {
     constructor(containerId, characterData, userId) {
-        this.container = document.getElementById(containerId);
+        this.containerId = containerId;
         this.characterData = characterData;
         this.userId = userId;
         this.sessionClicks = 0;
         this.sessionTimer = null;
-        this.sessionDelay = 5000; // 5 segundos para enviar sesiones
-        this.init();
+        this.sessionDelay = 5000;
+        
+        // Retrasar la inicialización hasta que el DOM esté listo
+        this.init = this.init.bind(this);
+        if (document.readyState === 'complete') {
+            this.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', this.init);
+        }
     }
     
     init() {
+        this.container = document.getElementById(this.containerId);
+        
+        // Verificar si el contenedor existe
+        if (!this.container) {
+            console.error(`Contenedor '${this.containerId}' no encontrado`);
+            return;
+        }
+        
         // Crear estructura de imagen
         this.createImageContainer();
         
