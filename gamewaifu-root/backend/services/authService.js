@@ -29,6 +29,14 @@ function validateTelegramAuth(data) {
 async function loginWithTelegram(req, res) {
     try {
         const telegramData = req.body;
+        
+        if (!telegramData || typeof telegramData !== 'object') {
+            throw new HTTPException(400, 'Invalid authentication data');
+        }
+        
+        if (!telegramData.auth_date) {
+            throw new HTTPException(400, 'Missing auth_date in request');
+        }
 
         const authDate = parseInt(telegramData.auth_date, 10);
         const now = Math.floor(Date.now() / 1000);

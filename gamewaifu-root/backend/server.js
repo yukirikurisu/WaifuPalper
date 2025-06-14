@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
 const { initializePool } = require('./db/connection');
-const { sequelize } = require('./models'); // Sequelize instance
+const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const MagicService  = require('./services/magicService');
@@ -14,16 +14,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const config = require('./config');
 
-app.use(cors({ origin: config.corsOrigin, methods: ['GET','POST','PUT','DELETE'], allowedHeaders: ['Content-Type','Authorization'] }));
+// Middleware
+app.use(cors({ 
+  origin: config.corsOrigin, 
+  methods: ['GET','POST','PUT','DELETE'], 
+  allowedHeaders: ['Content-Type','Authorization'] 
+}));
+
+// Add body parsing middleware here ▼
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // --- Conexión a DB PostgreSQL (pool) ---
 initializePool();
 
-// --- Conexión a DB Sequelize (si usas Sequelize también) ---
+// --- Conexión a DB Sequelize ---
 sequelize.sync()
   .then(() => console.log('Sequelize: DB conectada'))
   .catch(err => console.error('Sequelize Error:', err));
-//
+
 const path = require('path');
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
@@ -31,19 +40,18 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/characters', characterRoutes);
-//
+
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
-// --- Manejo de errores genérico ---
+// --- Manejo de errores ---
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 // --- Cron Jobs ---
-// Regenerar salud y magia cada 5 minutos
 cron.schedule('*/5 * * * *', async () => {
   try {
     await HealthService.regenerateHealthForAll();
@@ -53,7 +61,7 @@ cron.schedule('*/5 * * * *', async () => {
     console.error('[Cron] Error en regeneración automática:', error);
   }
 });
-// Procesar caracteres resentful cada 5 minutos
+
 cron.schedule('*/5 * * * *', async () => {
   try {
     await ResentService.processResentfulCharacters();
