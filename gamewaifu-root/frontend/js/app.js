@@ -64,21 +64,21 @@ const routes = {
     controller: async () => {
       const module = await import('./StaticApp.js');
       return new module.gameService();
+    }
   },
   '404': {
     view: '404',
     controller: null
   }
-},
+};
 
-// Enrutador principal
 async function router() {
-  const path = window.location.pathname,
-  const route = routes[path] || routes['404'],
+  const path = window.location.pathname;
+  const route = routes[path] || routes['404'];
   
   try {
     // Cargar la vista HTML
-    const res = await fetch(`/frontend/views/${route.view}.html`),
+    const res = await fetch(`/frontend/views/${route.view}.html`);
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
     
@@ -91,6 +91,7 @@ async function router() {
     document.getElementById('app').innerHTML = '<h1>Error loading view</h1>';
   }
 }
+
 
 // Función para navegar
 function navigate(path) {
@@ -113,16 +114,16 @@ function initApp() {
         navigate(route);
       }
     });
-  });
-  
-  // Botón continuar
-  if (continueBtn) {
-    continueBtn.addEventListener('click', () => 
+
+    // Botón continuar
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
         showTelegramLogin();
-      }
-    });
+      });
+    }
   }
 }
+
 
 // Eventos globales
 window.addEventListener('popstate', router);
