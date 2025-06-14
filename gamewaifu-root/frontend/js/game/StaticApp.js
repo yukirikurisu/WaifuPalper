@@ -1,14 +1,12 @@
 export default class StaticApp {
     constructor(containerId, characterData, userId) {
-        // Valores por defecto para evitar errores
-        this.containerId = containerId || 'game-container';
+        this.containerId = containerId || 'character-container';
         this.characterData = characterData || {};
         this.userId = userId || '';
         this.sessionClicks = 0;
         this.sessionTimer = null;
         this.sessionDelay = 5000;
         
-        // Esperar a que el DOM esté listo
         if (document.readyState === 'complete') {
             this.init();
         } else {
@@ -19,11 +17,13 @@ export default class StaticApp {
     init() {
         this.container = document.getElementById(this.containerId);
         
-        // Verificar existencia del contenedor
         if (!this.container) {
             console.error(`Contenedor '${this.containerId}' no encontrado`);
             return;
         }
+        
+        // Configurar contador primero
+        this.setupCounter();
         
         // Crear estructura de imagen
         this.createImageContainer();
@@ -33,13 +33,20 @@ export default class StaticApp {
         
         // Configurar interacción de clic
         this.setupClickInteraction();
-        
-        // Referenciar contador
+    }
+    
+    setupCounter() {
         this.counterElement = document.getElementById('total-counter');
         if (this.counterElement) {
-            this.counterElement.textContent = this.characterData.current_love;
+            this.counterElement.textContent = this.characterData.current_love || '0';
         } else {
             console.error('Elemento contador no encontrado');
+        }
+        
+        // Asegurar que el contador esté encima de la imagen
+        const counterWrapper = document.getElementById('total-counter-wrapper');
+        if (counterWrapper) {
+            counterWrapper.style.zIndex = '20';
         }
     }
     

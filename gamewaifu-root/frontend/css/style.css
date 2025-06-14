@@ -112,6 +112,7 @@ body {
   font-weight: bold;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
 /* Modal de selección de avatar */
 #avatar-selection-modal {
   display: none;
@@ -220,19 +221,29 @@ body {
   box-shadow: 0 8px 20px rgba(67, 97, 238, 0.6);
 }
 
-/* Panel de juego */
-/* frontend/css/style.css */
+/* Asegurar que el contenedor principal tenga posición relativa */
+#app {
+  position: relative;
+  height: 100%;
+  flex: 1;
+}
 
-/* ... código existente ... */
-
+/* Contenedor de juego */
 .game-container {
   position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
+#character-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Imagen del personaje */
 #character-image-container {
   position: absolute;
   top: 0;
@@ -240,7 +251,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 1;
+  z-index: 1; /* Debajo del contador */
 }
 
 #character-static-image {
@@ -248,34 +259,11 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: opacity 0.5s ease, transform 0.2s ease;
+  transition: opacity 0.5s, transform 0.2s;
+  opacity: 0;
 }
 
-/* Ajustes para móviles */
-@media (max-width: 768px) {
-  #character-static-image {
-    object-fit: contain;
-    transform: scale(1.2);
-    transform-origin: center;
-  }
-}
-
-.click-area {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 50%;
-  z-index: 5;
-}
-
-.click-area.left {
-  left: 0;
-}
-
-.click-area.right {
-  right: 0;
-}
-
+/* Contador */
 .counter-wrapper {
   position: absolute;
   top: 20px;
@@ -289,28 +277,7 @@ body {
   border: 2px solid #fff;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
-  z-index: 10;
-}
-
-.instructions {
-  position: absolute;
-  bottom: 70px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 1.2rem;
-  opacity: 0.8;
-  z-index: 10;
-}
-
-.game-controls {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  z-index: 10;
+  z-index: 20; /* Encima de todo */
 }
 
 .heart-icon {
@@ -327,6 +294,23 @@ body {
   text-align: left; 
 }
 
+/* Áreas de clic */
+.click-area {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  z-index: 15; /* Encima de la imagen pero debajo del contador */
+}
+
+.click-area.left {
+  left: 0;
+}
+
+.click-area.right {
+  right: 0;
+}
+
 .instructions {
   position: absolute;
   bottom: 70px;
@@ -335,34 +319,7 @@ body {
   text-align: center;
   font-size: 1.2rem;
   opacity: 0.8;
-}
-
-.game-controls {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.control-btn {
-  background: rgba(255, 255, 255, 0.2);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-}
-
-.control-btn:active {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(0.95);
+  z-index: 10;
 }
 
 /* Menú inferior */
@@ -613,7 +570,6 @@ input:checked + .slider-toggle:before {
 .language-select select option {
   background: rgba(26, 26, 46, 0.95);
 }
-
 
 /* Loader Overlay */
 #loader-overlay {

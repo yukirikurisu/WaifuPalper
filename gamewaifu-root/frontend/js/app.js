@@ -97,9 +97,9 @@ const routes = {
           description: charData.description
         };
 
-        // Importar e instanciar StaticApp
+        // Importar e instanciar StaticApp con el nuevo ID de contenedor
         const { default: StaticApp } = await import('./game/StaticApp.js');
-        const gameApp = new StaticApp('game-container', characterData, userData.user_id);
+        const gameApp = new StaticApp('character-container', characterData, userData.user_id);
         
         // Esperar a que el juego esté inicializado
         return new Promise((resolve) => {
@@ -125,9 +125,7 @@ const routes = {
         throw error;
       }
     }
-  },
-  '404': { view: '404', controller: null }
-};
+}
 
 async function router() {
   const path = window.location.pathname;
