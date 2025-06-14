@@ -1,52 +1,76 @@
 const db = require('../db/connection');
 const { HTTPException } = require('../errors/HTTPException');
+const config = require('../config');
 
 class ClickService {
-   * @param {UUID} userId
-   * @param {UUID} characterId
-   * @param {number} clickCount
-   * @returns {Promise<{ clickSessionId: UUID, loveGain: number }>}
-   */
-  async recordClickSession(userId, characterId, clickCount) {
+  async recordClickSession(userId, userCharacterId, clickCount) {
     return db.runInTransaction(async (client) => {
-      const { rows: sessRows } = await client.query(
-        `INSERT INTO click_sessions (user_id, user_character_id, click_count)
-         VALUES ($1, $2, $3)
-         RETURNING click_session_id, occurred_at`,
-        [userId, characterId, clickCount]
-      );
-      const { click_session_id: clickSessionId, occurred_at: occurredAt } = sessRows[0];
-
-      const { rows: chRows } = await client.query(
-        `SELECT current_love, level, is_resentful, is_lost
+      // Validar parámetros
+      if (!userCharacterId || !clickCount || clickCount <= 0) {
+        throw new HTTPException(400, 'Parámetros inválidos para la sesión de clics');
+      }
+      
+      // Obtener estado del personaje con bloqueo
+      const { rows } = await client.query(
+        `SELECT 
+            current_love, 
+            is_resentful,
+            is_lost
          FROM user_characters
-         WHERE user_character_id = $1
+         WHERE user_character_id = $1 AND user_id = $2
          FOR UPDATE`,
-        [characterId]
+        [userCharacterId, userId]
       );
-      if (chRows.length === 0) {
+      
+      if (rows.length === 0) {
         throw new HTTPException(404, 'Personaje no encontrado');
       }
-      const ch = chRows[0];
-
-      if (ch.is_lost) {
-        return { clickSessionId, loveGain: 0 };
+      
+      const character = rows[0];
+      
+      // Si el personaje está perdido, no gana amor
+      if (character.is_lost) {
+        return { 
+          loveGain: 0,
+          newLove: character.current_love,
+          isResentful: character.is_resentful
+        };
       }
-
-      const effectiveMultiplier = ch.is_resentful ? 0.1 : 1;
-
-      const loveGain = Math.round(clickCount * effectiveMultiplier);
-
+      
+      // Calcular amor ganado (considerando resentimiento)
+      const baseLovePerClick = config.game.clicks.lovePerClick;
+      const effectiveMultiplier = character.is_resentful ? 0.1 : 1;
+      const loveGain = Math.round(clickCount * baseLovePerClick * effectiveMultiplier);
+      const newLove = character.current_love + loveGain;
+      
+      // Actualizar el personaje
       await client.query(
         `UPDATE user_characters
-            SET usage_counter = usage_counter + 1,
-                last_used     = $1,
-                current_love  = current_love + $2
-          WHERE user_character_id = $3`,
-        [occurredAt, loveGain, characterId]
+         SET 
+            current_love = $1,
+            last_used = CURRENT_TIMESTAMP,
+            usage_counter = usage_counter + $2
+         WHERE user_character_id = $3`,
+        [newLove, clickCount, userCharacterId]
       );
-
-      return { clickSessionId, loveGain };
+      
+      // Registrar sesión histórica
+      await client.query(
+        `INSERT INTO click_sessions (
+            user_id, 
+            user_character_id, 
+            click_count, 
+            love_gain,
+            is_resentful
+         ) VALUES ($1, $2, $3, $4, $5)`,
+        [userId, userCharacterId, clickCount, loveGain, character.is_resentful]
+      );
+      
+      return {
+        loveGain,
+        newLove,
+        isResentful: character.is_resentful
+      };
     });
   }
 }

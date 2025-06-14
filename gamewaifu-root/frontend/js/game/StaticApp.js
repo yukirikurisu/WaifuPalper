@@ -1,5 +1,3 @@
-// frontend/js/game/StaticApp.js
-
 export default class StaticApp {
     constructor(containerId, characterData, userId) {
         this.container = document.getElementById(containerId);
@@ -23,7 +21,11 @@ export default class StaticApp {
         
         // Referenciar contador
         this.counterElement = document.getElementById('total-counter');
-        this.counterElement.textContent = this.characterData.current_love;
+        if (this.counterElement) {
+            this.counterElement.textContent = this.characterData.current_love;
+        } else {
+            console.error('Elemento contador no encontrado');
+        }
     }
     
     createImageContainer() {
@@ -51,8 +53,12 @@ export default class StaticApp {
         this.characterImage.style.objectPosition = 'center';
         this.characterImage.style.transition = 'transform 0.2s ease';
         this.characterImage.style.opacity = '0'; // Inicialmente invisible
-        
-          this.characterImage.src = this.characterData.image_url;
+
+        // Usar imagen por defecto si no hay URL
+        if (!this.characterData.image_url) {
+            this.characterData.image_url = '/images/default-character.png';
+        }
+        this.characterImage.src = this.characterData.image_url;
         this.imageContainer.appendChild(this.characterImage);
         
         this.characterImage.onload = () => {
@@ -68,11 +74,21 @@ export default class StaticApp {
                 this.characterImage.style.opacity = '1';
             }, 50);
         };
+
+        this.characterImage.onerror = () => {
+            console.error('Error cargando imagen, usando imagen por defecto');
+            this.characterImage.src = '/images/default-character.png';
+        };
     }
     
     setupClickInteraction() {
         const leftArea = document.querySelector('.click-area.left');
         const rightArea = document.querySelector('.click-area.right');
+        
+        if (!leftArea || !rightArea) {
+            console.error('Áreas de clic no encontradas');
+            return;
+        }
         
         const handleClick = () => {
             // Animación de reacción
@@ -85,7 +101,9 @@ export default class StaticApp {
             this.sessionClicks++;
             
             // Mostrar contador provisional (amor actual + clics en sesión)
-            this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
+            if (this.counterElement) {
+                this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
+            }
             
             // Reiniciar el temporizador de sesión
             this.resetSessionTimer();
@@ -112,27 +130,37 @@ export default class StaticApp {
     sendClickSession() {
         if (this.sessionClicks === 0) return;
         
-        // Preparar datos para enviar
         const sessionData = {
             userId: this.userId,
-            characterId: this.characterData.character_id,
+            characterId: this.characterData.user_character_id, // Usar user_character_id
             clickCount: this.sessionClicks
         };
         
-        // Enviar sesión al backend
         fetch('/api/click-sessions', {
             method: 'POST',
             headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             },
             body: JSON.stringify(sessionData)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
         .then(data => {
             // Actualizar amor del personaje con la respuesta
-            this.characterData.current_love += data.loveGain;
-            this.counterElement.textContent = this.characterData.current_love;
+            this.characterData.current_love = data.newLove;
+            if (this.counterElement) {
+            this.counterElement.textContent = data.newLove;
+            }
+            
+            // Si el personaje está resentido, mostrar notificación
+            if (data.isResentful) {
+            this.showResentmentWarning();
+            }
             
             // Reiniciar contador de sesión
             this.sessionClicks = 0;
@@ -142,9 +170,12 @@ export default class StaticApp {
             // Reintentar en caso de error
             this.sessionTimer = setTimeout(() => this.sendClickSession(), 2000);
         });
+        }
+
+    showResentmentWarning() {
+        console.warn('¡Personaje resentido! El amor ganado se reduce al 10%');
     }
     
-    // Enviar sesión pendiente al salir
     sendPendingSession() {
         if (this.sessionClicks > 0) {
             this.sendClickSession();

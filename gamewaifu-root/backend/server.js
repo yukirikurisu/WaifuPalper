@@ -6,6 +6,8 @@ const { initializePool } = require('./db/connection');
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const clickRoutes = require('./routes/clicks');
+const resentmentRoutes = require('./routes/resentment');
 const MagicService  = require('./services/magicService');
 const HealthService = require('./services/healthService');
 const ResentService = require('./services/resentService');
@@ -39,7 +41,9 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 // --- Rutas ---
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/characters', characterRoutes);
+app.use('/api/characters', characterRoutes)
+app.use('/api', clickRoutes);
+app.use('/api/resentment', resentmentRoutes);
 
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));

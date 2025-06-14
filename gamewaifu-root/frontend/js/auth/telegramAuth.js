@@ -11,7 +11,6 @@ export function showTelegramLogin() {
   script.async = true;
   script.src = "https://telegram.org/js/telegram-widget.js?21";
   
-  // Usa variable de entorno
   script.setAttribute("data-telegram-login", "WaifuPalper_bot");
   script.setAttribute("data-size", "large");
   script.setAttribute("data-radius", "20");
@@ -24,7 +23,6 @@ export function showTelegramLogin() {
   widgetContainer.appendChild(script);
 }
 
-// Mantener esta función global para el widget de Telegram
 window.onTelegramAuth = function(user) {
   document.getElementById('telegram-login-modal').style.display = 'none';
   
@@ -57,7 +55,6 @@ window.onTelegramAuth = function(user) {
   });
 };
 
-// Mostrar selector de avatar (solo para nuevos usuarios)
 function showAvatarSelection() {
   const avatarModal = document.getElementById('avatar-selection-modal');
   if (!avatarModal) {
@@ -95,7 +92,6 @@ function showAvatarSelection() {
       document.getElementById('username-display').textContent = telegramData.first_name;
     }
     
-    // Configurar botón de confirmación
     document.getElementById('confirm-avatar-btn').onclick = () => {
       const avatarId = localStorage.getItem('selectedAvatarId');
       if (avatarId) {
@@ -105,13 +101,11 @@ function showAvatarSelection() {
       }
     };
     
-    // Mostrar el modal
     avatarModal.style.display = 'flex';
   })
   .catch(() => fadeOutSplashScreen());
 }
 
-// Actualizar solo el avatar del usuario
 function updateUserAvatar(avatarId) {
   fetch('/api/user/avatar', {
     method: 'PUT',
@@ -125,7 +119,6 @@ function updateUserAvatar(avatarId) {
   .then(data => {
     if (data.success) {
       localStorage.removeItem('selectedAvatarId');
-      
       document.getElementById('avatar-selection-modal').style.display = 'none';
       fadeOutSplashScreen();
     }
@@ -133,12 +126,10 @@ function updateUserAvatar(avatarId) {
   .catch(() => fadeOutSplashScreen());
 }
 
-// Transición a la pantalla de juego
 function fadeOutSplashScreen() {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = 1;
     
-    // Iniciar la carga de la vista de juego ANTES de la animación
     const gameLoadPromise = loadGameView();
     
     const fadeOut = () => {
@@ -150,9 +141,15 @@ function fadeOutSplashScreen() {
             splash.style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
             
-            // Asegurarnos de que el juego está listo antes de mostrar
-            gameLoadPromise.then(() => {
-                // El juego ya está cargado, no necesitamos hacer nada más
+            gameLoadPromise.then(() => {}).catch(error => {
+                console.error('Error loading game view:', error);
+                document.getElementById('app-container').innerHTML = `
+                    <div class="error">
+                        <h2>Error al cargar el juego</h2>
+                        <p>${error.message}</p>
+                        <button onclick="location.reload()">Reintentar</button>
+                    </div>
+                `;
             });
         }
     };
@@ -160,38 +157,31 @@ function fadeOutSplashScreen() {
     fadeOut();
 }
 
-// Cargar vista de juego y preparar el juego
 async function loadGameView() {
   try {
-    // Cargar vista game.html
     const response = await fetch('views/game.html');
+    if (!response.ok) throw new Error('No se pudo cargar la vista del juego');
+    
     const htmlText = await response.text();
-
-    // Convertir el HTML en un documento DOM usando DOMParser
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlText, 'text/html');
 
-    // Obtener el contenedor destino y limpiarlo
     const appContainer = document.getElementById('app');
     while (appContainer.firstChild) {
       appContainer.removeChild(appContainer.firstChild);
     }
 
-    // Insertar de forma segura cada nodo hijo del body del documento parseado
     Array.from(doc.body.childNodes).forEach(node => {
       appContainer.appendChild(node);
     });
 
-    // Iniciar la carga del juego antes de que termine la animación
     return initGame();
   } catch (error) {
     console.error('Error loading game view:', error);
-    return Promise.reject(error);
+    throw error;
   }
 }
 
-
-// Inicializar juego
 async function initGame() {
   try {
     const [userResponse, charResponse] = await Promise.all([
@@ -207,27 +197,33 @@ async function initGame() {
       })
     ]);
 
-    // Manejar errores HTTP
-    if (!userResponse.ok) {
-      throw new Error(`User data error: ${userResponse.status}`);
-    }
-    if (!charResponse.ok) {
-      throw new Error(`Character data error: ${charResponse.status}`);
-    }
+    if (!userResponse.ok) throw new Error(`User data error: ${userResponse.status}`);
+    if (!charResponse.ok) throw new Error(`Character data error: ${charResponse.status}`);
 
     const [userData, charData] = await Promise.all([
       userResponse.json(),
       charResponse.json()
     ]);
 
-    // Verificar datos esenciales
-    if (!charData.image_url) {
-      throw new Error('Character image URL is missing');
+    // Adaptar estructura para StaticApp
+    const characterData = {
+      ...charData,
+      // Alias para compatibilidad con vista
+      character_id: charData.character_id,
+      current_love: charData.current_love,
+      image_url: charData.image_url,
+      // Campos específicos de StaticApp
+      name: charData.name,
+      description: charData.description
+    };
+
+    if (!characterData.image_url) {
+      characterData.image_url = '/images/default-character.png';
     }
 
-    const gameApp = new StaticApp('game-container', charData, userData.user_id);
+    const { default: StaticApp } = await import('../game/StaticApp.js');
+    const gameApp = new StaticApp('game-container', characterData, userData.user_id);
     
-    // Manejar cierre de ventana/pestaña
     window.addEventListener('beforeunload', (e) => {
       if (gameApp.sessionClicks > 0) {
         e.preventDefault();
@@ -236,14 +232,15 @@ async function initGame() {
       }
     });
     
-    // Esperar carga de imagen
     return new Promise((resolve, reject) => {
       gameApp.characterImage.onload = resolve;
       gameApp.characterImage.onerror = () => {
-        reject(new Error('Failed to load character image'));
+        console.error('Error cargando imagen, usando imagen por defecto');
+        gameApp.characterImage.src = '/images/default-character.png';
+        gameApp.characterImage.onload = resolve;
+        gameApp.characterImage.onerror = reject;
       };
       
-      // Resolver inmediatamente si la imagen ya está cargada
       if (gameApp.characterImage.complete) {
         resolve();
       }
@@ -251,5 +248,16 @@ async function initGame() {
     
   } catch (error) {
     console.error('Game initialization error:', error);
+    throw error;
+  }
+}
+
+if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+  try {
+    if (localStorage.getItem('authToken')) {
+      fadeOutSplashScreen();
+    }
+  } catch (error) {
+    handleCriticalError(error);
   }
 }
