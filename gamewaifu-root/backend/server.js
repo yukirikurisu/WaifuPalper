@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user');
 const MagicService  = require('./services/magicService');
 const HealthService = require('./services/healthService');
 const ResentService = require('./services/resentService');
+const characterRoutes = require('./routes/character');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const config = require('./config');
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 // --- Rutas ---
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/characters', characterRoutes);
 //
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));

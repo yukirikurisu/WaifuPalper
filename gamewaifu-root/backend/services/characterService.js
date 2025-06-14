@@ -1,6 +1,22 @@
 const db = require('../db/connection');
 const { HTTPException } = require('../errors/HTTPException');
 
+exports.getActiveCharacter = async (userId) => {
+  try {
+    const result = await db.query(
+      `SELECT * 
+       FROM active_user_character
+       WHERE user_id = $1 
+       LIMIT 1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const character = result.rows[0];
+    
 class CharacterService {
     // Asignar personaje mediante pase
     async assignCharacterFromPass(passId) {

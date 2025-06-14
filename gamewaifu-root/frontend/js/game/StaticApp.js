@@ -52,7 +52,7 @@ export default class StaticApp {
         this.characterImage.style.transition = 'transform 0.2s ease';
         this.characterImage.style.opacity = '0'; // Inicialmente invisible
         
-        this.characterImage.src = this.characterData.static_image_url;
+          this.characterImage.src = this.characterData.image_url;
         this.imageContainer.appendChild(this.characterImage);
         
         this.characterImage.onload = () => {

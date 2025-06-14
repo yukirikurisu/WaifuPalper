@@ -193,32 +193,63 @@ async function loadGameView() {
 
 // Inicializar juego
 async function initGame() {
-    try {
-        // Cargar datos del usuario
-        const userResponse = await fetch('/api/user/me', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-        });
-        const userData = await userResponse.json();
-        
-        // Cargar personaje activo
-        const charResponse = await fetch('/api/characters/active', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-        });
-        const charData = await charResponse.json();
-        
-        // Inicializar aplicación estática
-        const gameApp = new StaticApp('game-container', charData, userData.user_id);
-        
-        // Enviar sesión pendiente al salir
-        window.addEventListener('beforeunload', () => gameApp.sendPendingSession());
-        
-        // Devolver promesa que se resuelve cuando la imagen está cargada
-        return new Promise((resolve) => {
-            gameApp.characterImage.onload = resolve;
-        });
-        
-    } catch (error) {
-        console.error('Game initialization error:', error);
-        return Promise.reject(error);
+  try {
+    const [userResponse, charResponse] = await Promise.all([
+      fetch('/api/user/me', {
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+        }
+      }),
+      fetch('/api/characters/active', {
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+        }
+      })
+    ]);
+
+    // Manejar errores HTTP
+    if (!userResponse.ok) {
+      throw new Error(`User data error: ${userResponse.status}`);
     }
+    if (!charResponse.ok) {
+      throw new Error(`Character data error: ${charResponse.status}`);
+    }
+
+    const [userData, charData] = await Promise.all([
+      userResponse.json(),
+      charResponse.json()
+    ]);
+
+    // Verificar datos esenciales
+    if (!charData.image_url) {
+      throw new Error('Character image URL is missing');
+    }
+
+    const gameApp = new StaticApp('game-container', charData, userData.user_id);
+    
+    // Manejar cierre de ventana/pestaña
+    window.addEventListener('beforeunload', (e) => {
+      if (gameApp.sessionClicks > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+        gameApp.sendPendingSession();
+      }
+    });
+    
+    // Esperar carga de imagen
+    return new Promise((resolve, reject) => {
+      gameApp.characterImage.onload = resolve;
+      gameApp.characterImage.onerror = () => {
+        reject(new Error('Failed to load character image'));
+      };
+      
+      // Resolver inmediatamente si la imagen ya está cargada
+      if (gameApp.characterImage.complete) {
+        resolve();
+      }
+    });
+    
+  } catch (error) {
+    console.error('Game initialization error:', error);
+  }
 }
