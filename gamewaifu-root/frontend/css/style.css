@@ -1,3 +1,4 @@
+/* Telegram Modal */
 #telegram-login-modal {
   position: fixed;
   top: 0;
@@ -220,12 +221,43 @@ body {
 }
 
 /* Panel de juego */
+/* frontend/css/style.css */
+
+/* ... código existente ... */
+
 .game-container {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
   overflow: hidden;
+}
+
+#character-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#character-static-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.5s ease, transform 0.2s ease;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+  #character-static-image {
+    object-fit: contain;
+    transform: scale(1.2);
+    transform-origin: center;
+  }
 }
 
 .click-area {
@@ -233,7 +265,7 @@ body {
   top: 0;
   height: 100%;
   width: 50%;
-  z-index: 10;
+  z-index: 5;
 }
 
 .click-area.left {
@@ -243,20 +275,42 @@ body {
 .click-area.right {
   right: 0;
 }
+
 .counter-wrapper {
   position: absolute;
   top: 20px;
   left: 20px;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start; /* Alinea el contenido a la izquierda */
+  justify-content: flex-start;
   background: transparent;
   padding: 5px 15px;
   border-radius: 30px;
   border: 2px solid #fff;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
-  z-index: 20;
+  z-index: 10;
+}
+
+.instructions {
+  position: absolute;
+  bottom: 70px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  z-index: 10;
+}
+
+.game-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
 }
 
 .heart-icon {
@@ -271,17 +325,6 @@ body {
   display: flex;
   align-items: center;
   text-align: left; 
-}
-
- 
-
-#game-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, #4e54c8, #8f94fb);
 }
 
 .instructions {

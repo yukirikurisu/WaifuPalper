@@ -1,3 +1,4 @@
+import StaticApp from '../game/StaticApp.js';
 // Función para mostrar el modal de Telegram
 function showTelegramLogin() {
   const loginModal = document.getElementById('telegram-login-modal');
@@ -135,6 +136,9 @@ function fadeOutSplashScreen() {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = 1;
     
+    // Iniciar la carga de la vista de juego ANTES de la animación
+    const gameLoadPromise = loadGameView();
+    
     const fadeOut = () => {
         splash.style.opacity = parseFloat(splash.style.opacity) - 0.02;
         
@@ -143,11 +147,33 @@ function fadeOutSplashScreen() {
         } else {
             splash.style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
-            initGame();
+            
+            // Asegurarnos de que el juego está listo antes de mostrar
+            gameLoadPromise.then(() => {
+                // El juego ya está cargado, no necesitamos hacer nada más
+            });
         }
     };
     
     fadeOut();
+}
+
+// Cargar vista de juego y preparar el juego
+async function loadGameView() {
+    try {
+        // Cargar vista game.html
+        const response = await fetch('views/game.html');
+        const html = await response.text();
+        
+        // Insertar en el contenedor #app
+        document.getElementById('app').innerHTML = html;
+        
+        // Iniciar la carga del juego ANTES de que termine la animación
+        return initGame();
+    } catch (error) {
+        console.error('Error loading game view:', error);
+        return Promise.reject(error);
+    }
 }
 
 // Inicializar juego
@@ -165,18 +191,19 @@ async function initGame() {
         });
         const charData = await charResponse.json();
         
-        // Inicializar Three.js
-        const gameApp = new ThreeApp('game-container');
+        // Inicializar aplicación estática
+        const gameApp = new StaticApp('game-container', charData, userData.user_id);
         
-        // Configurar escena según el personaje
-        gameApp.setCharacter(charData.glbModelUrl, charData.animationProperties);
+        // Enviar sesión pendiente al salir
+        window.addEventListener('beforeunload', () => gameApp.sendPendingSession());
         
-        // Iniciar loop de juego
-        gameApp.startGameLoop();
+        // Devolver promesa que se resuelve cuando la imagen está cargada
+        return new Promise((resolve) => {
+            gameApp.characterImage.onload = resolve;
+        });
         
     } catch (error) {
         console.error('Game initialization error:', error);
+        return Promise.reject(error);
     }
 }
-
-
