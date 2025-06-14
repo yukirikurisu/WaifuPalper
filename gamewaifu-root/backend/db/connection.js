@@ -1,11 +1,22 @@
 const { Pool } = require('pg');
-const config = require('../config');  
+const config = require('../config');
+
 let pool;
 
 function initializePool() {
   if (!pool) {
+    // Obtener configuración directamente de config.db
+    const dbConfig = {
+      user: config.db.user,
+      host: config.db.host,
+      database: config.db.database,
+      password: config.db.password,
+      port: config.db.port,
+      ...(config.db.ssl ? { ssl: config.db.ssl } : {})
+    };
+
     pool = new Pool({
-      ...config.getDbConfig(),
+      ...dbConfig,
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
@@ -14,8 +25,10 @@ function initializePool() {
     pool.on('connect', () => {
       console.log('Connection pool created successfully');
     });
+    
     pool.on('error', err => {
-      console.error('Unexpected error on server', err);
+      console.error('Unexpected error on idle client', err);
+      process.exit(-1);
     });
   }
   return pool;

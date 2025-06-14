@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/characters', characterRoutes)
-app.use('/api', clickRoutes);
+app.use('/api/clicks', clickRoutes);
 app.use('/api/resentment', resentmentRoutes);
 
 app.get(/^\/(?!api).*/, (req, res) => {
