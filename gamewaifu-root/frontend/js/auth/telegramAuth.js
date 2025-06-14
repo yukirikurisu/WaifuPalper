@@ -160,21 +160,34 @@ function fadeOutSplashScreen() {
 
 // Cargar vista de juego y preparar el juego
 async function loadGameView() {
-    try {
-        // Cargar vista game.html
-        const response = await fetch('views/game.html');
-        const html = await response.text();
-        
-        // Insertar en el contenedor #app
-        document.getElementById('app').innerHTML = html;
-        
-        // Iniciar la carga del juego ANTES de que termine la animación
-        return initGame();
-    } catch (error) {
-        console.error('Error loading game view:', error);
-        return Promise.reject(error);
+  try {
+    // Cargar vista game.html
+    const response = await fetch('views/game.html');
+    const htmlText = await response.text();
+
+    // Convertir el HTML en un documento DOM usando DOMParser
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+
+    // Obtener el contenedor destino y limpiarlo
+    const appContainer = document.getElementById('app');
+    while (appContainer.firstChild) {
+      appContainer.removeChild(appContainer.firstChild);
     }
+
+    // Insertar de forma segura cada nodo hijo del body del documento parseado
+    Array.from(doc.body.childNodes).forEach(node => {
+      appContainer.appendChild(node);
+    });
+
+    // Iniciar la carga del juego antes de que termine la animación
+    return initGame();
+  } catch (error) {
+    console.error('Error loading game view:', error);
+    return Promise.reject(error);
+  }
 }
+
 
 // Inicializar juego
 async function initGame() {
