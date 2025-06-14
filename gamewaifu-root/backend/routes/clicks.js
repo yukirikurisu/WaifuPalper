@@ -1,3 +1,8 @@
+const express = require('express');
+const router = express.Router(); 
+const ClickService = require('../services/clickService');
+const authMiddleware = require('../middleware/auth');
+
 router.post('/sessions', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -38,3 +43,5 @@ router.post('/sessions', authMiddleware, async (req, res) => {
     });
   }
 });
+
+module.exports = router; 
