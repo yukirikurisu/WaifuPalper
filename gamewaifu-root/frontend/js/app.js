@@ -123,8 +123,9 @@ const routes = {
       } catch (error) {
         console.error('Error initializing game:', error);
         throw error;
+        }
       }
-    }
+    },
 }
 
 async function router() {
