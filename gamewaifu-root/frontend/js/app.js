@@ -5,6 +5,12 @@ const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');
 const closeModalBtn = document.getElementById('close-login-modal');
 
+// Función global para navegación
+window.navigate = function(path) {
+  window.history.pushState({}, '', path);
+  router();
+};
+
 if (closeModalBtn) {
   closeModalBtn.addEventListener('click', () => {
     if (loginModal) loginModal.style.display = 'none';
@@ -58,8 +64,66 @@ const routes = {
   '/game': {
     view: 'game',
     controller: async () => {
-      const module = await import('./game/StaticApp.js');
-      return new module.default();
+      try {
+        // Obtener datos del usuario y personaje
+        const [userResponse, charResponse] = await Promise.all([
+          fetch('/api/user/me', {
+            headers: { 
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+            }
+          }),
+          fetch('/api/characters/active', {
+            headers: { 
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+            }
+          })
+        ]);
+
+        if (!userResponse.ok) throw new Error(`Error de datos de usuario: ${userResponse.status}`);
+        if (!charResponse.ok) throw new Error(`Error de datos de personaje: ${charResponse.status}`);
+
+        const [userData, charData] = await Promise.all([
+          userResponse.json(),
+          charResponse.json()
+        ]);
+
+        // Preparar datos para StaticApp
+        const characterData = {
+          ...charData,
+          character_id: charData.character_id,
+          current_love: charData.current_love,
+          image_url: charData.image_url || '/images/default-character.png',
+          name: charData.name,
+          description: charData.description
+        };
+
+        // Importar e instanciar StaticApp
+        const { default: StaticApp } = await import('./game/StaticApp.js');
+        const gameApp = new StaticApp('game-container', characterData, userData.user_id);
+        
+        // Esperar a que el juego esté inicializado
+        return new Promise((resolve) => {
+          const checkInitialization = () => {
+            if (gameApp.container) {
+              // Configurar manejo de cierre
+              window.addEventListener('beforeunload', (e) => {
+                if (gameApp.sessionClicks > 0) {
+                  e.preventDefault();
+                  e.returnValue = '';
+                  gameApp.sendPendingSession();
+                }
+              });
+              resolve();
+            } else {
+              setTimeout(checkInitialization, 50);
+            }
+          };
+          checkInitialization();
+        });
+      } catch (error) {
+        console.error('Error initializing game:', error);
+        throw error;
+      }
     }
   },
   '404': { view: '404', controller: null }
@@ -70,12 +134,14 @@ async function router() {
   const route = routes[path] || routes['404'];
   
   try {
+    // Cargar vista HTML
     const res = await fetch(`/views/${route.view}.html`);
     if (!res.ok) throw new Error('Vista no encontrada');
     
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
     
+    // Inicializar controlador si existe
     if (route.controller) {
       await route.controller();
     }
@@ -85,15 +151,10 @@ async function router() {
       <div class="error-view">
         <h1>¡Error al cargar la vista!</h1>
         <p>${err.message}</p>
-        <button onclick="location.reload()">Reintentar</button>
+        <button onclick="window.navigate('/')">Volver al inicio</button>
       </div>
     `;
   }
-}
-
-function navigate(path) {
-  window.history.pushState({}, '', path);
-  router();
 }
 
 function initApp() {
@@ -103,7 +164,7 @@ function initApp() {
       if (route) {
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        navigate(route);
+        window.navigate(route);
       }
     });
   });
@@ -115,15 +176,14 @@ function initApp() {
 
 window.addEventListener('popstate', router);
 document.addEventListener('DOMContentLoaded', () => {
-  router();
   initApp();
+  router();
 });
 
+// Si ya está autenticado, ir directamente al juego
 if (localStorage.getItem('authToken')) {
   if (splashScreen) splashScreen.style.display = 'none';
-  
   const appContainer = document.getElementById('app-container');
   if (appContainer) appContainer.style.display = 'flex';
-  
-  navigate('/game');
+  window.navigate('/game');
 }

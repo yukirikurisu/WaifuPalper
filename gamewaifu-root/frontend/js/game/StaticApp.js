@@ -1,25 +1,25 @@
 export default class StaticApp {
     constructor(containerId, characterData, userId) {
-        this.containerId = containerId;
-        this.characterData = characterData;
-        this.userId = userId;
+        // Valores por defecto para evitar errores
+        this.containerId = containerId || 'game-container';
+        this.characterData = characterData || {};
+        this.userId = userId || '';
         this.sessionClicks = 0;
         this.sessionTimer = null;
         this.sessionDelay = 5000;
         
-        // Retrasar la inicialización hasta que el DOM esté listo
-        this.init = this.init.bind(this);
+        // Esperar a que el DOM esté listo
         if (document.readyState === 'complete') {
             this.init();
         } else {
-            document.addEventListener('DOMContentLoaded', this.init);
+            document.addEventListener('DOMContentLoaded', this.init.bind(this));
         }
     }
     
     init() {
         this.container = document.getElementById(this.containerId);
         
-        // Verificar si el contenedor existe
+        // Verificar existencia del contenedor
         if (!this.container) {
             console.error(`Contenedor '${this.containerId}' no encontrado`);
             return;
@@ -67,23 +67,20 @@ export default class StaticApp {
         this.characterImage.style.objectFit = 'cover';
         this.characterImage.style.objectPosition = 'center';
         this.characterImage.style.transition = 'transform 0.2s ease';
-        this.characterImage.style.opacity = '0'; // Inicialmente invisible
+        this.characterImage.style.opacity = '0';
 
         // Usar imagen por defecto si no hay URL
-        if (!this.characterData.image_url) {
-            this.characterData.image_url = '/images/default-character.png';
-        }
-        this.characterImage.src = this.characterData.image_url;
+        this.characterImage.src = this.characterData.image_url || '/images/default-character.png';
         this.imageContainer.appendChild(this.characterImage);
         
         this.characterImage.onload = () => {
-            // Ajustar zoom para móviles
+            // Ajustar para móviles
             if (window.innerWidth <= 768) {
                 this.characterImage.style.objectFit = 'contain';
                 this.characterImage.style.transform = 'scale(1.2)';
             }
             
-            // Hacer visible la imagen con transición suave
+            // Mostrar progresivamente
             setTimeout(() => {
                 this.characterImage.style.transition = 'opacity 0.5s ease';
                 this.characterImage.style.opacity = '1';
@@ -112,15 +109,15 @@ export default class StaticApp {
                 this.characterImage.style.transform = window.innerWidth <= 768 ? 'scale(1.2)' : 'scale(1)';
             }, 200);
             
-            // Incrementar contador de sesión
+            // Incrementar contador
             this.sessionClicks++;
             
-            // Mostrar contador provisional (amor actual + clics en sesión)
+            // Actualizar contador provisional
             if (this.counterElement) {
                 this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
             }
             
-            // Reiniciar el temporizador de sesión
+            // Reiniciar temporizador
             this.resetSessionTimer();
         };
         
@@ -129,16 +126,9 @@ export default class StaticApp {
     }
     
     resetSessionTimer() {
-        // Cancelar temporizador existente
-        if (this.sessionTimer) {
-            clearTimeout(this.sessionTimer);
-        }
-        
-        // Iniciar nuevo temporizador
+        if (this.sessionTimer) clearTimeout(this.sessionTimer);
         this.sessionTimer = setTimeout(() => {
-            if (this.sessionClicks > 0) {
-                this.sendClickSession();
-            }
+            if (this.sessionClicks > 0) this.sendClickSession();
         }, this.sessionDelay);
     }
     
@@ -147,53 +137,48 @@ export default class StaticApp {
         
         const sessionData = {
             userId: this.userId,
-            characterId: this.characterData.user_character_id, // Usar user_character_id
+            characterId: this.characterData.user_character_id,
             clickCount: this.sessionClicks
         };
         
         fetch('/api/click-sessions', {
             method: 'POST',
             headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             },
             body: JSON.stringify(sessionData)
         })
         .then(response => {
-            if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-            }
+            if (!response.ok) throw new Error('Error en la respuesta del servidor');
             return response.json();
         })
         .then(data => {
-            // Actualizar amor del personaje con la respuesta
+            // Actualizar amor
             this.characterData.current_love = data.newLove;
             if (this.counterElement) {
-            this.counterElement.textContent = data.newLove;
+                this.counterElement.textContent = data.newLove;
             }
             
-            // Si el personaje está resentido, mostrar notificación
+            // Mostrar advertencia si está resentido
             if (data.isResentful) {
-            this.showResentmentWarning();
+                this.showResentmentWarning();
             }
             
-            // Reiniciar contador de sesión
             this.sessionClicks = 0;
         })
         .catch(error => {
             console.error('Error sending click session:', error);
-            // Reintentar en caso de error
             this.sessionTimer = setTimeout(() => this.sendClickSession(), 2000);
         });
-        }
+    }
 
     showResentmentWarning() {
         console.warn('¡Personaje resentido! El amor ganado se reduce al 10%');
+        // Implementar UI de advertencia aquí
     }
     
     sendPendingSession() {
-        if (this.sessionClicks > 0) {
-            this.sendClickSession();
-        }
+        if (this.sessionClicks > 0) this.sendClickSession();
     }
 }
