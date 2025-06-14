@@ -1,8 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const ClickService = require('../services/clickService');
-const authMiddleware = require('../middleware/auth');
-
 router.post('/sessions', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -17,6 +12,15 @@ router.post('/sessions', authMiddleware, async (req, res) => {
     }
     
     const result = await ClickService.recordClickSession(userId, characterId, clickCount);
+    
+    // Verificación defensiva contra resultados nulos/undefined
+    if (!result || result.newLove === undefined) {
+      console.error('Resultado inesperado del servicio:', result);
+      return res.status(500).json({
+        error: 'Error interno del servidor (resultado inválido)',
+        code: 'SERVER_ERROR'
+      });
+    }
     
     res.json({
       success: true,
@@ -34,5 +38,3 @@ router.post('/sessions', authMiddleware, async (req, res) => {
     });
   }
 });
-
-module.exports = router;

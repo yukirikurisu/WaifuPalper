@@ -48,8 +48,13 @@ async function withDb(callback, { autocommit = false } = {}) {
   const client = await getConnection();
   try {
     if (!autocommit) await client.query('BEGIN');
-    await callback(client);
+    
+    const result = await callback(client);
+    
     if (!autocommit) await client.query('COMMIT');
+    
+    return result; 
+    
   } catch (err) {
     if (!autocommit) await client.query('ROLLBACK');
     throw err;

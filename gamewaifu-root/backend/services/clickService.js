@@ -4,12 +4,13 @@ const config = require('../config');
 
 class ClickService {
   async recordClickSession(userId, userCharacterId, clickCount) {
+    // Validación temprana
+    if (!userCharacterId || !clickCount || clickCount <= 0) {
+      throw new HTTPException(400, 'Parámetros inválidos para la sesión de clics');
+    }
+    
+    // Retornar explícitamente el resultado de la transacción
     return db.withDb(async (client) => {
-      // Validar parámetros
-      if (!userCharacterId || !clickCount || clickCount <= 0) {
-        throw new HTTPException(400, 'Parámetros inválidos para la sesión de clics');
-      }
-      
       // Obtener estado del personaje con bloqueo
       const { rows } = await client.query(
         `SELECT 
@@ -28,7 +29,7 @@ class ClickService {
       
       const character = rows[0];
       
-      // Si el personaje está perdido, no gana amor
+      // Si el personaje está perdido, retornar resultado inmediato
       if (character.is_lost) {
         return { 
           loveGain: 0,
