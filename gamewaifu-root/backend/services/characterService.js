@@ -274,8 +274,6 @@ class CharacterService {
             return updatedChar;
         });
     }
-}
-
     // Encontrar oponente para batalla
     async findBattleOpponent(userCharacterId) {
         const character = await db.query(
