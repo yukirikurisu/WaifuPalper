@@ -294,18 +294,20 @@ body {
   text-align: left; 
 }
 
+/* Estilos actualizados para áreas de clic circulares */
 .click-area {
   position: absolute;
-  bottom: 70px; /
+  bottom: 70px; /* Justo debajo de las instrucciones */
   height: 80px;
   width: 80px;
-  border-radius: 50%;
-  background: rgba(230, 222, 222, 0.3); 
+  border-radius: 50%; /* Forma circular */
+  background: rgba(255, 182, 193, 0.3); /* Rosa semitransparente */
   z-index: 15;
   cursor: pointer;
   transition: all 0.3s ease;
-  animation: pulse 1.5s infinite;
-  box-shadow: 0 0 15px rgba(255, 182, 193, 0.3);
+  box-shadow: 0 0 15px rgba(223, 117, 133, 0.3)
+  transform: scale(1);
+  opacity: 0.7;
 }
 
 .click-area.left {
@@ -316,27 +318,49 @@ body {
   right: calc(35% - 40px);
 }
 
-/* Animación de parpadeo */
+/* Animación de parpadeo al hacer clic */
 @keyframes pulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(253, 116, 136, 0.3);
+    box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.7);
+    opacity: 0.7;
   }
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(255, 105, 180, 0);
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 105, 180, 0.4);
+    opacity: 1;
   }
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(255, 105, 180, 0);
+    opacity: 0.7;
   }
 }
 
 /* Efecto al hacer clic */
 .click-area:active {
-  animation: none;
-  transform: scale(0.95);
+  animation: pulse 0.5s ease;
   background: rgba(255, 20, 147, 0.5);
+}
+
+/* Animación para el efecto de pulso */
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-effect {
+  animation: pulse 0.5s ease-out;
 }
 
 /* Instrucciones sobrepuestas */

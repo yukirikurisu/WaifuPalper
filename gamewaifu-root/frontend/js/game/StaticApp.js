@@ -6,7 +6,8 @@ class StaticApp {
     this.sessionClicks = 0;
     this.sessionTimer = null;
     this.inactivityTimer = null;
-    this.sessionDelay = 10000; // 10s de inactividad
+    this.lastClickTime = 0;
+    this.sessionDelay = 5000; // 5s de inactividad
     this.maxSessionTime = 60000; // 60s máximo por sesión
     this.sessionStartTime = 0;
     
@@ -45,6 +46,8 @@ class StaticApp {
     this.counterElement = document.getElementById('total-counter');
     if (this.counterElement) {
       this.counterElement.textContent = this.characterData.current_love || '0';
+    } else {
+      console.warn('Elemento contador no encontrado');
     }
   }
   
@@ -74,14 +77,22 @@ class StaticApp {
     this.imageContainer.appendChild(this.characterImage);
     
     this.characterImage.onload = () => {
+      // Ajustar para móviles
       if (window.innerWidth <= 768) {
         this.characterImage.style.objectFit = 'contain';
         this.characterImage.style.transform = 'scale(1.2)';
       }
+      
+      // Mostrar progresivamente
       setTimeout(() => {
         this.characterImage.style.transition = 'opacity 0.5s ease';
         this.characterImage.style.opacity = '1';
       }, 50);
+    };
+
+    this.characterImage.onerror = () => {
+      console.error('Error cargando imagen, usando imagen por defecto');
+      this.characterImage.src = '/images/default-character.png';
     };
   }
   
@@ -94,35 +105,99 @@ class StaticApp {
       return;
     }
     
-    // Último tiempo de clic para prevenir dobles registros
-    this.lastClickTime = 0;
-    const minClickInterval = 200; // 200ms entre clics
+    // Configurar posición y tamaño de las áreas circulares
+    this.setupClickAreasPosition(leftArea, rightArea);
     
-    const handleClick = () => {
-      const now = Date.now();
-      
-      // Prevenir clics demasiado rápidos
-      if (now - this.lastClickTime < minClickInterval) {
-        return;
-      }
-      
-      this.lastClickTime = now;
-      
-      // Incrementar contador
-      this.sessionClicks++;
-      
-      // Actualizar contador provisional
-      if (this.counterElement) {
-        this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
-      }
-      
-      // Reiniciar temporizadores
-      this.resetInactivityTimer();
-      this.resetMaxSessionTimer();
+    const handleClick = (area) => {
+      return () => {
+        const now = Date.now();
+        
+        // Prevenir clics demasiado rápidos (menos de 200ms)
+        if (now - this.lastClickTime < 200) {
+          return;
+        }
+        
+        this.lastClickTime = now;
+        
+        // Crear efecto de pulso en el área de clic
+        this.createPulseEffect(area);
+        
+        // Incrementar contador
+        this.sessionClicks++;
+        
+        // Actualizar contador provisional
+        if (this.counterElement) {
+          this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
+        }
+        
+        // Reiniciar temporizadores
+        this.resetInactivityTimer();
+        this.resetMaxSessionTimer();
+      };
     };
     
-    leftArea.addEventListener('click', handleClick);
-    rightArea.addEventListener('click', handleClick);
+    leftArea.addEventListener('click', handleClick(leftArea));
+    rightArea.addEventListener('click', handleClick(rightArea));
+  }
+  
+  setupClickAreasPosition(leftArea, rightArea) {
+    // Obtener el elemento de instrucciones para posicionar las áreas debajo
+    const instructions = document.querySelector('.instructions');
+    if (instructions) {
+      const rect = instructions.getBoundingClientRect();
+      
+      // Posicionar las áreas de clic justo encima de las instrucciones
+      const bottomPosition = window.innerHeight - rect.top + 20;
+      
+      leftArea.style.bottom = `${bottomPosition}px`;
+      rightArea.style.bottom = `${bottomPosition}px`;
+    }
+    
+    // Establecer propiedades de círculo
+    leftArea.style.borderRadius = '50%';
+    rightArea.style.borderRadius = '50%';
+    leftArea.style.width = '80px';
+    leftArea.style.height = '80px';
+    rightArea.style.width = '80px';
+    rightArea.style.height = '80px';
+    leftArea.style.background = 'rgba(255, 182, 193, 0.3)';
+    rightArea.style.background = 'rgba(255, 182, 193, 0.3)';
+    leftArea.style.boxShadow = '0 0 15px rgba(255, 105, 180, 0.5)';
+    rightArea.style.boxShadow = '0 0 15px rgba(255, 105, 180, 0.5)';
+    leftArea.style.transition = 'all 0.3s ease';
+    rightArea.style.transition = 'all 0.3s ease';
+    
+    // Posicionar horizontalmente
+    leftArea.style.left = 'calc(35% - 40px)';
+    rightArea.style.right = 'calc(35% - 40px)';
+  }
+  
+  createPulseEffect(area) {
+    // Crear elemento para el efecto visual
+    const effect = document.createElement('div');
+    effect.className = 'pulse-effect';
+    
+    // Copiar posición y tamaño del área de clic
+    const rect = area.getBoundingClientRect();
+    effect.style.position = 'absolute';
+    effect.style.left = `${rect.left}px`;
+    effect.style.top = `${rect.top}px`;
+    effect.style.width = `${rect.width}px`;
+    effect.style.height = `${rect.height}px`;
+    effect.style.borderRadius = '50%';
+    effect.style.backgroundColor = 'rgba(255, 105, 180, 0.3)';
+    effect.style.zIndex = '16';
+    effect.style.pointerEvents = 'none';
+    
+    // Aplicar animación
+    effect.style.animation = 'pulseAnimation 0.5s ease-out';
+    
+    document.body.appendChild(effect);
+    
+    // Eliminar después de la animación
+    setTimeout(() => {
+      effect.remove();
+    }, 500);
   }
   
   resetInactivityTimer() {
@@ -187,8 +262,7 @@ class StaticApp {
   }
   
   showResentmentWarning() {
-    console.warn('¡Personaje resentido! El amor ganado se reduce al 10%');
-    // Podrías añadir aquí una notificación visual al usuario
+    // Crear notificación visual
     const warning = document.createElement('div');
     warning.textContent = '¡Personaje resentido! Amor reducido';
     warning.style.position = 'absolute';
@@ -198,9 +272,27 @@ class StaticApp {
     warning.style.textAlign = 'center';
     warning.style.color = '#ff6b6b';
     warning.style.fontWeight = 'bold';
+    warning.style.fontSize = '1.2rem';
     warning.style.zIndex = '30';
+    warning.style.animation = 'fadeInOut 3s ease';
     document.querySelector('.game-container').appendChild(warning);
     
+    // Añadir estilo de animación si no existe
+    if (!document.getElementById('fade-animation-style')) {
+      const style = document.createElement('style');
+      style.id = 'fade-animation-style';
+      style.textContent = `
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translateY(20px); }
+          20% { opacity: 1; transform: translateY(0); }
+          80% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-20px); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Eliminar después de 3 segundos
     setTimeout(() => {
       warning.remove();
     }, 3000);
@@ -213,4 +305,5 @@ class StaticApp {
     }
   }
 }
+
 export default StaticApp;
