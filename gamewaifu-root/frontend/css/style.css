@@ -232,35 +232,36 @@ body {
 .game-container {
   position: relative;
   width: 100%;
-  flex: 1;
+  flex: 1; /* Ocupa espacio restante */
   overflow: hidden;
+  display: flex; /* Nuevo: permite alinear elementos hijos */
 }
 
 #character-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100%; 
   overflow: hidden;
+  flex: 1;
 }
 
-/* Imagen del personaje */
+/* Imagen del personaje /
 #character-image-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100%; 
+  min-height: 300px; 
   overflow: hidden;
-  z-index: 1; /* Debajo del contador */
+  z-index: 1;
 }
 
-#character-static-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: opacity 0.5s, transform 0.2s;
-  opacity: 0;
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+  #character-image-container {
+    min-height: 250px;
+  }
 }
 
 /* Contador */
