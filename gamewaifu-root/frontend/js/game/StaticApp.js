@@ -216,20 +216,25 @@ class StaticApp {
     this.characterImage.id = 'character-static-image';
     this.characterImage.style.width = '100%';
     this.characterImage.style.height = '100%';
-    this.characterImage.style.objectFit = 'cover';
-    this.characterImage.style.objectPosition = 'center';
-    this.characterImage.style.transition = 'transform 0.2s ease';
+    this.characterImage.style.objectFit = 'cover'; 
+    this.characterImage.style.objectPosition = 'center top'; 
+    this.characterImage.style.transform = 'scale(1.05)'; 
     this.characterImage.style.opacity = '0';
     this.characterImage.src = this.characterData.image_url || '/images/default-character.png';
     this.imageContainer.appendChild(this.characterImage);
     
     this.characterImage.onload = () => {
-      // Ajustar para móviles
-      if (window.innerWidth <= 768) {
-        this.characterImage.style.objectFit = 'contain';
-        this.characterImage.style.transform = 'scale(1.2)';
-      }
-      
+    const containerRatio = this.imageContainer.offsetWidth / this.imageContainer.offsetHeight;
+    const imgRatio = this.characterImage.naturalWidth / this.characterImage.naturalHeight;
+    
+    // Ajustar zoom según relación de aspecto
+    if (imgRatio > containerRatio) {
+        this.characterImage.style.transform = 'scale(1.05)';
+    } else {
+        this.characterImage.style.transform = 'scale(1.1)';
+    }
+    };
+
       // Mostrar progresivamente
       setTimeout(() => {
         this.characterImage.style.transition = 'opacity 0.5s ease';

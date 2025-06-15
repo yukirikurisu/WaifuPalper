@@ -234,6 +234,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  flex: 1
 }
 
 #character-container {
@@ -252,13 +253,13 @@ body {
   min-height: 300px; 
   overflow: hidden;
   z-index: 1;
+
 }
 
-/* Ajustes para móviles */
-@media (max-width: 768px) {
-  #character-image-container {
-    min-height: 250px;
-  }
+#character-static-image {
+    min-width: 100%;
+    min-height: 100%;
+    transform-origin: center;
 }
 
 /* Contador */
@@ -292,10 +293,9 @@ body {
   text-align: left; 
 }
 
-/* Estilos actualizados para áreas de clic circulares */
 .click-area {
   position: absolute;
-  bottom: 70px; /* Justo debajo de las instrucciones */
+  bottom: 70px; 
   height: 80px;
   width: 80px;
   border-radius: 50%; /* Forma circular */
@@ -358,7 +358,7 @@ body {
 /* Instrucciones sobrepuestas */
 .instructions {
   position: absolute;
-  bottom: 70px;
+  bottom: 150px;
   left: 0;
   width: 100%;
   text-align: center;
@@ -370,7 +370,7 @@ body {
 
 .instructions {
   position: absolute;
-  bottom: 70px;
+  bottom: 150px;
   left: 0;
   width: 100%;
   text-align: center;
@@ -407,8 +407,8 @@ body {
 
 #circular-menu .menu-btn.item {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: #000;
   color: #fff;
