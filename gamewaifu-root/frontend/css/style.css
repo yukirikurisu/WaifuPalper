@@ -305,7 +305,7 @@ body {
   z-index: 15;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 15px rgba(223, 117, 133, 0.3)
+  box-shadow: 0 0 15px rgba(223, 117, 133, 0.3);
   transform: scale(1);
   opacity: 0.7;
 }
@@ -360,7 +360,7 @@ body {
 /* Instrucciones sobrepuestas */
 .instructions {
   position: absolute;
-  bottom: 70px;
+  bottom: 100px;
   left: 0;
   width: 100%;
   text-align: center;
@@ -372,7 +372,7 @@ body {
 
 .instructions {
   position: absolute;
-  bottom: 70px;
+  bottom: 250px;
   left: 0;
   width: 100%;
   text-align: center;
@@ -384,18 +384,18 @@ body {
 /* Menu */
 #circular-menu {
   position: fixed;
-  bottom: 50px; 
+  bottom: 10px; 
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   z-index: 2000;
 }
 
 #circular-menu .menu-btn.central {
   position: absolute;
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: #000;
   color: #fff;
@@ -460,7 +460,6 @@ body {
   /* Ángulo de -170° */
   transform: translate(-88px, -16px) scale(1);
 }
-
 
 
 /* Pantallas */
