@@ -5,7 +5,31 @@ const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');
 const closeModalBtn = document.getElementById('close-login-modal');
 
-// Función global para navegación
+// Modulo del menu
+document.addEventListener("DOMContentLoaded", () => {
+  const circularMenu = document.getElementById("circular-menu");
+  const menuToggle = document.getElementById("menu-toggle");
+
+  menuToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    circularMenu.classList.toggle("active");
+
+    if (circularMenu.classList.contains("active")) {
+      menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+    } else {
+      menuToggle.innerHTML = '<i class="fas fa-plus"></i>';
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!circularMenu.contains(event.target)) {
+      circularMenu.classList.remove("active");
+      menuToggle.innerHTML = '<i class="fas fa-plus"></i>';
+    }
+  });
+});
+
+// Funcion para navegacion
 window.navigate = function(path) {
   window.history.pushState({}, '', path);
   router();
@@ -126,8 +150,14 @@ const routes = {
         throw error;
         }
       }
-    },
-}
+    }
+  },
+  // Añadida ruta 404
+  '404': {
+    view: '404',
+    controller: null
+  }
+};
 
 async function router() {
   const path = window.location.pathname;
@@ -140,6 +170,11 @@ async function router() {
     
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
+    
+    // Actualizar botones activos del menú
+    document.querySelectorAll('.menu-btn[data-route]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.route === path);
+    });
     
     // Inicializar controlador si existe
     if (route.controller) {
@@ -158,12 +193,11 @@ async function router() {
 }
 
 function initApp() {
-  document.querySelectorAll('.menu-btn').forEach(btn => {
+  // Solo para botones con data-route (excluye el botón central)
+  document.querySelectorAll('.menu-btn[data-route]').forEach(btn => {
     btn.addEventListener('click', () => {
       const route = btn.dataset.route;
       if (route) {
-        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
         window.navigate(route);
       }
     });

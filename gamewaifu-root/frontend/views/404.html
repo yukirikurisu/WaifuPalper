@@ -1,0 +1,11 @@
+<div class="error-view">
+  <h1>Página no encontrada</h1>
+  <p>Lo sentimos, la página que buscas no existe.</p>
+  <button onclick="window.navigate('/')">Volver al inicio</button>
+</div>
+
+  <script>
+    if (window.location.pathname === '/404') {
+      window.navigate('/');
+    }
+  </script>

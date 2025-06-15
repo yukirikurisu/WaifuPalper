@@ -10,20 +10,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-  <!-- Pantalla de carga -->
   <div id="splash-screen">
     <h1 class="app-title">Waifu Palper</h1>
     <p class="app-subtitle">Tocalas hasta que te amen</p>
     <button class="continue-btn">CONTINUAR</button>
   </div>
 
-  <!-- Modal para el Telegram Login Widget -->
+  <!-- Modal Telegram Login  -->
   <div id="telegram-login-modal">
     <div id="telegram-login-widget"></div>
     <button id="close-login-modal">Cancelar</button>
   </div>
   
-  <!-- Modal para la selección de avatar -->
+  <!-- Modal avatar -->
   <div id="avatar-selection-modal" class="modal" style="display: none;">
     <div class="modal-content">
       <h2>Selecciona tu avatar</h2>
@@ -41,34 +40,39 @@
     </div>
   </div>
 
-  <!-- Contenedor principal -->
   <div id="app-container">
-    <!-- Panel superior -->
+    <!-- Panel Anuncios -->
     <div class="ad-panel">
       <div class="ad-content">
         ¡ESPACIO PUBLICITARIO DISPONIBLE! - Descuento del 20% a culonas
       </div>
     </div>
 
-    <!-- Contenedor de la aplicación -->
+    <!-- Aplicacion -->
     <div id="app"></div>
 
-    <!-- Menú inferior con atributos data-route -->
-    <div class="menu-panel">
-      <div class="menu-btn active" data-route="/game">
-        <i class="fas fa-gamepad"></i><span>Juego</span>
+    <!-- Menu -->
+    <div id="circular-menu">
+      <div class="menu-btn central" id="menu-toggle">
+        <i class="fas fa-plus"></i>
       </div>
-      <div class="menu-btn" data-route="/profile">
-        <i class="fa-solid fa-hat-wizard"></i><span>Perfil</span>
+      <div class="menu-btn item" data-route="/game">
+        <i class="fas fa-gamepad"></i>
       </div>
-      <div class="menu-btn" data-route="/store">
-        <i class="fa-solid fa-wand-sparkles"></i><span>Tienda</span>
+      <div class="menu-btn item" data-route="/profile">
+        <i class="fa-solid fa-hat-wizard"></i>
       </div>
-      <div class="menu-btn" data-route="/characters">
-        <i class="fas fa-scroll"></i><span>Waifus</span>
+      <div class="menu-btn item" data-route="/market">
+        <i class="fa-solid fa-wand-sparkles"></i>
       </div>
-      <div class="menu-btn" data-route="/settings">
-        <i class="fa-solid fa-dice-d6"></i><span>Ajustes</span>
+      <div class="menu-btn item" data-route="/characters">
+        <i class="fas fa-scroll"></i>
+      </div>
+      <div class="menu-btn item" data-route="/config">
+        <i class="fa-solid fa-dice-d6"></i>
+      </div>
+      <div class="menu-btn item" data-route="/battle">
+        <i class="fa-solid fa-swords"></i>
       </div>
     </div>
   </div>
