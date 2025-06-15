@@ -205,10 +205,10 @@ class StaticApp {
     this.imageContainer.style.top = '0';
     this.imageContainer.style.left = '0';
     this.imageContainer.style.width = '100%';
-    this.imageContainer.style.height = '100%'; 
-    this.imageContainer.style.minHeight = '300px'; 
+    this.imageContainer.style.height = '100%';
     this.imageContainer.style.overflow = 'hidden';
-    this.imageContainer.style.zIndex = '1';
+    this.imageContainer.style.zIndex = '1'; // Debajo de los círculos
+    this.container.appendChild(this.imageContainer);
   }
   
   loadCharacterImage() {

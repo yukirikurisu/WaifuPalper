@@ -232,17 +232,15 @@ body {
 .game-container {
   position: relative;
   width: 100%;
-  flex: 1; 
+  height: 100%;
   overflow: hidden;
-  display: flex; 
 }
 
 #character-container {
   position: relative;
   width: 100%;
-  height: 100%; 
+  height: 100%;
   overflow: hidden;
-  flex: 1;
 }
 
 #character-image-container {
