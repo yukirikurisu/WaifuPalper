@@ -235,12 +235,11 @@ class StaticApp {
     }
     };
 
-      // Mostrar progresivamente
-      setTimeout(() => {
-        this.characterImage.style.transition = 'opacity 0.5s ease';
-        this.characterImage.style.opacity = '1';
-      }, 50);
-    };
+    // Mostrar progresivamente
+    setTimeout(() => {
+      this.characterImage.style.transition = 'opacity 0.5s ease';
+      this.characterImage.style.opacity = '1';
+    }, 50);
 
     this.characterImage.onerror = () => {
       console.error('Error cargando imagen, usando imagen por defecto');
