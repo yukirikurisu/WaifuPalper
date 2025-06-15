@@ -193,7 +193,6 @@ async function router() {
 }
 
 function initApp() {
-  // Solo para botones con data-route (excluye el botón central)
   document.querySelectorAll('.menu-btn[data-route]').forEach(btn => {
     btn.addEventListener('click', () => {
       const route = btn.dataset.route;
@@ -214,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   router();
 });
 
-// Si ya está autenticado, ir directamente al juego
+// Si ya esta autenticado, ir directamente al juego
 if (localStorage.getItem('authToken')) {
   if (splashScreen) splashScreen.style.display = 'none';
   const appContainer = document.getElementById('app-container');
