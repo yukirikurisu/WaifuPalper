@@ -26,28 +26,175 @@ class StaticApp {
       return;
     }
     
-    // Configurar contador
-    this.setupCounter();
+    // Primero crear áreas de clic para que estén encima
+    this.createClickAreas();
     
-    // Crear estructura de imagen
+    // Luego crear el contenedor de imagen
     this.createImageContainer();
     
     // Cargar imagen del personaje
     this.loadCharacterImage();
     
-    // Configurar interacción de clic
-    this.setupClickInteraction();
+    // Configurar contador
+    this.setupCounter();
     
     // Configurar temporizador de sesión máxima
     this.resetMaxSessionTimer();
   }
   
-  setupCounter() {
-    this.counterElement = document.getElementById('total-counter');
-    if (this.counterElement) {
-      this.counterElement.textContent = this.characterData.current_love || '0';
-    } else {
-      console.warn('Elemento contador no encontrado');
+  createClickAreas() {
+    // Crear contenedor para áreas de clic
+    this.clickAreasContainer = document.createElement('div');
+    this.clickAreasContainer.id = 'click-areas-container';
+    this.clickAreasContainer.style.position = 'absolute';
+    this.clickAreasContainer.style.top = '0';
+    this.clickAreasContainer.style.left = '0';
+    this.clickAreasContainer.style.width = '100%';
+    this.clickAreasContainer.style.height = '100%';
+    this.clickAreasContainer.style.zIndex = '20'; // Encima de la imagen
+    this.clickAreasContainer.style.pointerEvents = 'none'; // Permite clics a través de este contenedor
+    
+    // Crear área izquierda
+    this.leftArea = document.createElement('div');
+    this.leftArea.className = 'click-area left';
+    this.leftArea.style.pointerEvents = 'auto'; // Acepta clics
+    
+    // Crear área derecha
+    this.rightArea = document.createElement('div');
+    this.rightArea.className = 'click-area right';
+    this.rightArea.style.pointerEvents = 'auto'; // Acepta clics
+    
+    // Añadir áreas al contenedor
+    this.clickAreasContainer.appendChild(this.leftArea);
+    this.clickAreasContainer.appendChild(this.rightArea);
+    
+    // Añadir contenedor al game-container
+    this.container.appendChild(this.clickAreasContainer);
+    
+    // Configurar posición y estilo de áreas
+    this.setupClickAreasPosition();
+    
+    // Configurar interacción de clic
+    this.setupClickInteraction();
+  }
+  
+  setupClickAreasPosition() {
+    // Obtener el elemento de instrucciones para posicionar las áreas debajo
+    const instructions = document.querySelector('.instructions');
+    let bottomPosition = '70px';
+    
+    if (instructions) {
+      const rect = instructions.getBoundingClientRect();
+      // Posicionar las áreas de clic justo encima de las instrucciones
+      bottomPosition = `${window.innerHeight - rect.top + 20}px`;
+    }
+    
+    // Configurar áreas circulares
+    const areaStyle = {
+      position: 'absolute',
+      bottom: bottomPosition,
+      width: '80px',
+      height: '80px',
+      borderRadius: '50%',
+      background: 'rgba(255, 182, 193, 0.3)',
+      boxShadow: '0 0 15px rgba(255, 105, 180, 0.5)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      zIndex: '21' // Encima del contenedor
+    };
+    
+    // Aplicar estilos
+    Object.assign(this.leftArea.style, areaStyle, {
+      left: 'calc(35% - 40px)'
+    });
+    
+    Object.assign(this.rightArea.style, areaStyle, {
+      right: 'calc(35% - 40px)'
+    });
+  }
+  
+  setupClickInteraction() {
+    const handleClick = (area) => {
+      return () => {
+        const now = Date.now();
+        
+        // Prevenir clics demasiado rápidos (menos de 200ms)
+        if (now - this.lastClickTime < 200) {
+          return;
+        }
+        
+        this.lastClickTime = now;
+        
+        // Crear efecto de pulso en el área de clic
+        this.createPulseEffect(area);
+        
+        // Incrementar contador
+        this.sessionClicks++;
+        console.log(`Clic registrado! Total en sesión: ${this.sessionClicks}`);
+        
+        // Actualizar contador provisional
+        if (this.counterElement) {
+          this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
+        }
+        
+        // Reiniciar temporizadores
+        this.resetInactivityTimer();
+        this.resetMaxSessionTimer();
+      };
+    };
+    
+    this.leftArea.addEventListener('click', handleClick(this.leftArea));
+    this.rightArea.addEventListener('click', handleClick(this.rightArea));
+  }
+  
+  createPulseEffect(area) {
+    // Crear elemento para el efecto visual
+    const effect = document.createElement('div');
+    effect.className = 'pulse-effect';
+    
+    // Copiar posición y tamaño del área de clic
+    const rect = area.getBoundingClientRect();
+    effect.style.position = 'absolute';
+    effect.style.left = `${rect.left}px`;
+    effect.style.top = `${rect.top}px`;
+    effect.style.width = `${rect.width}px`;
+    effect.style.height = `${rect.height}px`;
+    effect.style.borderRadius = '50%';
+    effect.style.backgroundColor = 'rgba(255, 105, 180, 0.3)';
+    effect.style.zIndex = '22';
+    effect.style.pointerEvents = 'none';
+    
+    // Aplicar animación
+    effect.style.animation = 'pulseAnimation 0.5s ease-out';
+    
+    document.body.appendChild(effect);
+    
+    // Eliminar después de la animación
+    setTimeout(() => {
+      effect.remove();
+    }, 500);
+    
+    // Añadir estilo de animación si no existe
+    if (!document.getElementById('pulse-animation-style')) {
+      const style = document.createElement('style');
+      style.id = 'pulse-animation-style';
+      style.textContent = `
+        @keyframes pulseAnimation {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          70% {
+            transform: scale(1.3);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
     }
   }
   
@@ -60,7 +207,7 @@ class StaticApp {
     this.imageContainer.style.width = '100%';
     this.imageContainer.style.height = '100%';
     this.imageContainer.style.overflow = 'hidden';
-    this.imageContainer.style.zIndex = '1';
+    this.imageContainer.style.zIndex = '1'; // Debajo de los círculos
     this.container.appendChild(this.imageContainer);
   }
   
@@ -96,114 +243,22 @@ class StaticApp {
     };
   }
   
-  setupClickInteraction() {
-    const leftArea = document.querySelector('.click-area.left');
-    const rightArea = document.querySelector('.click-area.right');
-    
-    if (!leftArea || !rightArea) {
-      console.error('Áreas de clic no encontradas');
-      return;
+  setupCounter() {
+    this.counterElement = document.getElementById('total-counter');
+    if (this.counterElement) {
+      this.counterElement.textContent = this.characterData.current_love || '0';
+    } else {
+      console.warn('Elemento contador no encontrado');
     }
-    
-    // Configurar posición y tamaño de las áreas circulares
-    this.setupClickAreasPosition(leftArea, rightArea);
-    
-    const handleClick = (area) => {
-      return () => {
-        const now = Date.now();
-        
-        // Prevenir clics demasiado rápidos (menos de 200ms)
-        if (now - this.lastClickTime < 200) {
-          return;
-        }
-        
-        this.lastClickTime = now;
-        
-        // Crear efecto de pulso en el área de clic
-        this.createPulseEffect(area);
-        
-        // Incrementar contador
-        this.sessionClicks++;
-        
-        // Actualizar contador provisional
-        if (this.counterElement) {
-          this.counterElement.textContent = parseInt(this.characterData.current_love) + this.sessionClicks;
-        }
-        
-        // Reiniciar temporizadores
-        this.resetInactivityTimer();
-        this.resetMaxSessionTimer();
-      };
-    };
-    
-    leftArea.addEventListener('click', handleClick(leftArea));
-    rightArea.addEventListener('click', handleClick(rightArea));
-  }
-  
-  setupClickAreasPosition(leftArea, rightArea) {
-    // Obtener el elemento de instrucciones para posicionar las áreas debajo
-    const instructions = document.querySelector('.instructions');
-    if (instructions) {
-      const rect = instructions.getBoundingClientRect();
-      
-      // Posicionar las áreas de clic justo encima de las instrucciones
-      const bottomPosition = window.innerHeight - rect.top + 20;
-      
-      leftArea.style.bottom = `${bottomPosition}px`;
-      rightArea.style.bottom = `${bottomPosition}px`;
-    }
-    
-    // Establecer propiedades de círculo
-    leftArea.style.borderRadius = '50%';
-    rightArea.style.borderRadius = '50%';
-    leftArea.style.width = '80px';
-    leftArea.style.height = '80px';
-    rightArea.style.width = '80px';
-    rightArea.style.height = '80px';
-    leftArea.style.background = 'rgba(255, 182, 193, 0.3)';
-    rightArea.style.background = 'rgba(255, 182, 193, 0.3)';
-    leftArea.style.boxShadow = '0 0 15px rgba(255, 105, 180, 0.5)';
-    rightArea.style.boxShadow = '0 0 15px rgba(255, 105, 180, 0.5)';
-    leftArea.style.transition = 'all 0.3s ease';
-    rightArea.style.transition = 'all 0.3s ease';
-    
-    // Posicionar horizontalmente
-    leftArea.style.left = 'calc(35% - 40px)';
-    rightArea.style.right = 'calc(35% - 40px)';
-  }
-  
-  createPulseEffect(area) {
-    // Crear elemento para el efecto visual
-    const effect = document.createElement('div');
-    effect.className = 'pulse-effect';
-    
-    // Copiar posición y tamaño del área de clic
-    const rect = area.getBoundingClientRect();
-    effect.style.position = 'absolute';
-    effect.style.left = `${rect.left}px`;
-    effect.style.top = `${rect.top}px`;
-    effect.style.width = `${rect.width}px`;
-    effect.style.height = `${rect.height}px`;
-    effect.style.borderRadius = '50%';
-    effect.style.backgroundColor = 'rgba(255, 105, 180, 0.3)';
-    effect.style.zIndex = '16';
-    effect.style.pointerEvents = 'none';
-    
-    // Aplicar animación
-    effect.style.animation = 'pulseAnimation 0.5s ease-out';
-    
-    document.body.appendChild(effect);
-    
-    // Eliminar después de la animación
-    setTimeout(() => {
-      effect.remove();
-    }, 500);
   }
   
   resetInactivityTimer() {
     if (this.sessionTimer) clearTimeout(this.sessionTimer);
     this.sessionTimer = setTimeout(() => {
-      if (this.sessionClicks > 0) this.sendClickSession();
+      if (this.sessionClicks > 0) {
+        console.log('Enviando sesión por inactividad');
+        this.sendClickSession();
+      }
     }, this.sessionDelay);
   }
   
@@ -211,12 +266,17 @@ class StaticApp {
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
     this.sessionStartTime = Date.now();
     this.inactivityTimer = setTimeout(() => {
-      if (this.sessionClicks > 0) this.sendClickSession();
+      if (this.sessionClicks > 0) {
+        console.log('Enviando sesión por tiempo máximo');
+        this.sendClickSession();
+      }
     }, this.maxSessionTime);
   }
   
   sendClickSession() {
     if (this.sessionClicks === 0) return;
+    
+    console.log(`Enviando sesión al servidor: ${this.sessionClicks} clics`);
     
     const sessionData = {
       userId: this.userId,
@@ -233,10 +293,12 @@ class StaticApp {
       body: JSON.stringify(sessionData)
     })
     .then(response => {
-      if (!response.ok) throw new Error('Error en la respuesta del servidor');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return response.json();
     })
     .then(data => {
+      console.log('Respuesta del servidor:', data);
+      
       // Actualizar amor
       this.characterData.current_love = data.newLove;
       if (this.counterElement) {
@@ -301,6 +363,7 @@ class StaticApp {
   // Método para enviar sesión pendiente al salir
   sendPendingSession() {
     if (this.sessionClicks > 0) {
+      console.log('Enviando sesión pendiente al salir');
       this.sendClickSession();
     }
   }
