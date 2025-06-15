@@ -221,7 +221,7 @@ body {
   box-shadow: 0 8px 20px rgba(67, 97, 238, 0.6);
 }
 
-/* Asegurar que el contenedor principal tenga posición relativa */
+
 #app {
   position: relative;
   height: 100%;
@@ -232,9 +232,9 @@ body {
 .game-container {
   position: relative;
   width: 100%;
-  flex: 1; /* Ocupa espacio restante */
+  flex: 1; 
   overflow: hidden;
-  display: flex; /* Nuevo: permite alinear elementos hijos */
+  display: flex; 
 }
 
 #character-container {
