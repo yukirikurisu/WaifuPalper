@@ -1,29 +1,8 @@
-<div class="tabs">
-  <button class="tab-button active" data-tab="stats">Perfil</button>
-  <button class="tab-button" data-tab="missions">Misiones</button>
-  <button class="tab-button" data-tab="achievements">Logros</button>
-</div>
+<!-- Botón flotante para alternar vistas -->
+<button class="toggle-view-button">
+  <i class="fa-solid fa-mug-saucer"></i>
+</button>
 
-<div class="tab-content" id="stats-tab">
-  <h2>Tu Perfil</h2>
-  <div class="avatar">
-    <img id="user-avatar" src="" alt="Avatar">
-  </div>
-  <div class="screen-content">
-    <p>Nombre: <span id="profile-name"></span></p>
-    <p>Nivel: <span id="profile-level"></span></p>
-    <p>Waifus: <span id="profile-characters"></span></p>
-    <p>Total Love: <span id="profile-love"></span> <i class="fas fa-heart"></i></p>
-  </div>
-</div>
-
-<div class="tab-content hidden" id="missions-tab">
-  <h3>Misiones Diarias</h3>
-  <ul id="missions-list"></ul>
-</div>
-
-<div class="tab-content hidden" id="achievements-tab">
-  <h3>Logros</h3>
-  <ul id="achievements-list"></ul>
-</div>
+<!-- Contenedor principal que se actualiza dinámicamente -->
+<div id="view-container"></div>
 
