@@ -151,7 +151,6 @@ class CharacterService {
   }
   
   getBaseStats(rarity) {
-    // Usar configuración centralizada
     return config.CHARACTER.BASE_STATS[rarity] || 1;
   }
   

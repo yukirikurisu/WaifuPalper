@@ -5,44 +5,43 @@ const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');
 const closeModalBtn = document.getElementById('close-login-modal');
 
-// Modulo del menu
-document.addEventListener("DOMContentLoaded", () => {
-  const circularMenu = document.getElementById("circular-menu");
-  const menuToggle = document.getElementById("menu-toggle");
+// Módulo del menú circular
+document.addEventListener('DOMContentLoaded', () => {
+  const circularMenu = document.getElementById('circular-menu');
+  const menuToggle = document.getElementById('menu-toggle');
 
-  menuToggle.addEventListener("click", (event) => {
+  menuToggle.addEventListener('click', event => {
     event.stopPropagation();
-    circularMenu.classList.toggle("active");
-
-    if (circularMenu.classList.contains("active")) {
-      menuToggle.innerHTML = '<i class="fas fa-times"></i>';
-    } else {
-      menuToggle.innerHTML = '<i class="fas fa-plus"></i>';
-    }
+    circularMenu.classList.toggle('active');
+    menuToggle.innerHTML = circularMenu.classList.contains('active')
+      ? '<i class="fas fa-times"></i>'
+      : '<i class="fas fa-plus"></i>';
   });
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener('click', event => {
     if (!circularMenu.contains(event.target)) {
-      circularMenu.classList.remove("active");
+      circularMenu.classList.remove('active');
       menuToggle.innerHTML = '<i class="fas fa-plus"></i>';
     }
   });
 });
 
-// Funcion para navegacion
-window.navigate = function(path) {
-  window.history.pushState({}, '', path);
-  router();
-};
-
+// Cierra modal de login Telegram
 if (closeModalBtn) {
   closeModalBtn.addEventListener('click', () => {
     if (loginModal) loginModal.style.display = 'none';
   });
 }
 
+// Navegación SPA
+window.navigate = function(path) {
+  window.history.pushState({}, '', path);
+  router();
+};
+
 const routes = {
   '/': { view: 'home', controller: null },
+
   '/battle': {
     view: 'battle',
     controller: async () => {
@@ -50,13 +49,28 @@ const routes = {
       return new module.BattleUI();
     }
   },
+
   '/profile': {
     view: 'profile',
     controller: async () => {
-      const module = await import('./profile.js');
-      return new module.profileService();
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/user/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('No se pudo cargar el perfil');
+        const data = await response.json();
+
+        document.getElementById('profile-name').innerText       = data.username;
+        document.getElementById('user-avatar').src              = data.avatarUrl || '/images/default-avatar.png';
+        document.getElementById('profile-characters').innerText = data.charactersCount;
+        document.getElementById('profile-love').innerText       = data.totalLove;
+      } catch (err) {
+        console.error(err);
+      }
     }
   },
+
   '/characters': {
     view: 'characters',
     controller: async () => {
@@ -64,6 +78,7 @@ const routes = {
       return new module.charactersService();
     }
   },
+
   '/market': {
     view: 'market',
     controller: async () => {
@@ -71,6 +86,7 @@ const routes = {
       return new module.marketService();
     }
   },
+
   '/pass': {
     view: 'pass',
     controller: async () => {
@@ -78,6 +94,7 @@ const routes = {
       return new module.passService();
     }
   },
+
   '/config': {
     view: 'config',
     controller: async () => {
@@ -85,53 +102,33 @@ const routes = {
       return new module.configService();
     }
   },
+
   '/game': {
     view: 'game',
     controller: async () => {
       try {
-        // Obtener datos del usuario y personaje
-        const [userResponse, charResponse] = await Promise.all([
-          fetch('/api/user/me', {
-            headers: { 
-              'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
-            }
-          }),
-          fetch('/api/characters/active', {
-            headers: { 
-              'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
-            }
-          })
+        const token = localStorage.getItem('authToken');
+        const [userResp, charResp] = await Promise.all([
+          fetch('/api/user/me', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/characters/active', { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
+        if (!userResp.ok) throw new Error(`Error datos usuario: ${userResp.status}`);
+        if (!charResp.ok) throw new Error(`Error datos personaje: ${charResp.status}`);
 
-        if (!userResponse.ok) throw new Error(`Error de datos de usuario: ${userResponse.status}`);
-        if (!charResponse.ok) throw new Error(`Error de datos de personaje: ${charResponse.status}`);
+        const [userData, charData] = await Promise.all([userResp.json(), charResp.json()]);
 
-        const [userData, charData] = await Promise.all([
-          userResponse.json(),
-          charResponse.json()
-        ]);
-
-        // Preparar datos para StaticApp
         const characterData = {
           ...charData,
-          character_id: charData.character_id,
-          current_love: charData.current_love,
-          image_url: charData.image_url || '/images/default-character.png',
-          name: charData.name,
-          description: charData.description
+          image_url: charData.image_url || '/images/default-character.png'
         };
 
-        // Importar e instanciar StaticApp con el nuevo ID de contenedor
-        const StaticAppModule = await import('./game/StaticApp.js');
-        const StaticApp = StaticAppModule.default; 
+        const { default: StaticApp } = await import('./game/StaticApp.js');
         const gameApp = new StaticApp('character-container', characterData, userData.user_id);
-        
-        // Esperar a que el juego esté inicializado
-        return new Promise((resolve) => {
-          const checkInitialization = () => {
+
+        return new Promise(resolve => {
+          (function checkInit() {
             if (gameApp.container) {
-              // Configurar manejo de cierre
-              window.addEventListener('beforeunload', (e) => {
+              window.addEventListener('beforeunload', e => {
                 if (gameApp.sessionClicks > 0) {
                   e.preventDefault();
                   e.returnValue = '';
@@ -140,10 +137,9 @@ const routes = {
               });
               resolve();
             } else {
-              setTimeout(checkInitialization, 50);
+              setTimeout(checkInit, 50);
             }
-          };
-          checkInitialization();
+          })();
         });
       } catch (error) {
         console.error('Error initializing game:', error);
@@ -151,34 +147,23 @@ const routes = {
       }
     }
   },
-  // Añadida ruta 404
-  '404': {
-    view: '404',
-    controller: null
-  }
+
+  '404': { view: '404', controller: null }
 };
 
 async function router() {
   const path = window.location.pathname;
   const route = routes[path] || routes['404'];
-  
   try {
-    // Cargar vista HTML
     const res = await fetch(`/views/${route.view}.html`);
     if (!res.ok) throw new Error('Vista no encontrada');
-    
-    const html = await res.text();
-    document.getElementById('app').innerHTML = html;
-    
-    // Actualizar botones activos del menú
+    document.getElementById('app').innerHTML = await res.text();
+
     document.querySelectorAll('.menu-btn[data-route]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.route === path);
     });
-    
-    // Inicializar controlador si existe
-    if (route.controller) {
-      await route.controller();
-    }
+
+    if (route.controller) await route.controller();
   } catch (err) {
     console.error('Error loading view:', err);
     document.getElementById('app').innerHTML = `
@@ -193,29 +178,22 @@ async function router() {
 
 function initApp() {
   document.querySelectorAll('.menu-btn[data-route]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const route = btn.dataset.route;
-      if (route) {
-        window.navigate(route);
-      }
-    });
+    btn.addEventListener('click', () => window.navigate(btn.dataset.route));
   });
 
-  if (continueBtn) {
-    continueBtn.addEventListener('click', showTelegramLogin);
-  }
+  if (continueBtn) continueBtn.addEventListener('click', showTelegramLogin);
 }
 
 window.addEventListener('popstate', router);
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   router();
-});
 
-// Si ya esta autenticado, ir directamente al juego
-if (localStorage.getItem('authToken')) {
-  if (splashScreen) splashScreen.style.display = 'none';
-  const appContainer = document.getElementById('app-container');
-  if (appContainer) appContainer.style.display = 'flex';
-  window.navigate('/game');
-}
+  // Si ya está autenticado, ir al juego directamente
+  if (localStorage.getItem('authToken')) {
+    if (splashScreen) splashScreen.style.display = 'none';
+    const appContainer = document.getElementById('app-container');
+    if (appContainer) appContainer.style.display = 'flex';
+    window.navigate('/game');
+  }
+});
