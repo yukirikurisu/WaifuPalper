@@ -712,3 +712,7 @@ input:checked + .slider-toggle:before {
   50% { opacity: 0.2; }
 }
 
+.tabs { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.tab-button { padding: 0.5rem 1rem; cursor: pointer; }
+.tab-button.active { border-bottom: 2px solid #ff4081; }
+.tab-content.hidden { display: none; }
