@@ -771,14 +771,14 @@ input:checked + .slider-toggle:before {
   font-size: 1rem;
 }
 
-/* Botón flotante para alternar vistas 
+/* Botón flotante para alternar vistas – estado por defecto: perfil */
 .toggle-view-button {
   position: fixed;
   top: 1rem;
   right: 1rem;
   width: 56px;
   height: 56px;
-  background-color: black;  
+  background-color: black;  /* para perfil */
   color: white;
   border: none;
   border-radius: 50%;
@@ -802,6 +802,6 @@ input:checked + .slider-toggle:before {
 
 /* Contenedor principal de la vista dinámica */
 #view-container {
-  padding-top: 4rem;
+  padding-top: 4rem; /* Espacio para que no choque con el botón */
   min-height: calc(100vh - 4rem);
 }
