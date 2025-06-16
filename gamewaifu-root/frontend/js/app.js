@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
 // Cierra modal de login Telegram
 if (closeModalBtn) {
   closeModalBtn.addEventListener('click', () => {
@@ -52,21 +53,8 @@ const routes = {
   '/profile': {
     view: 'profile',
     controller: async () => {
-      try {
-        const token = localStorage.getItem('authToken');
-        const response = await fetch('/api/user/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error('No se pudo cargar el perfil');
-        const data = await response.json();
-
-        document.getElementById('profile-name').innerText       = data.username;
-        document.getElementById('user-avatar').src              = data.avatarUrl || '/images/default-avatar.png';
-        document.getElementById('profile-characters').innerText = data.charactersCount;
-        document.getElementById('profile-love').innerText       = data.totalLove;
-      } catch (err) {
-        console.error(err);
-      }
+      const module = await import('./game/profileApp.js');
+      return new module.ProfileApp();
     }
   },
 
