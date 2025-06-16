@@ -1,5 +1,4 @@
 import { showTelegramLogin } from './auth/telegramAuth.js';
-
 const splashScreen = document.getElementById('splash-screen');
 const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');

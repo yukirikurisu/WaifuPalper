@@ -40,8 +40,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-
-router.get('/missions', auth, async (req, res) => {
+router.get('/missions', authMiddleware, async (req, res) => {
   try {
     const missions = await missionService.getUserMissions(req.user.userId);
     res.json(missions);
@@ -51,8 +50,7 @@ router.get('/missions', auth, async (req, res) => {
   }
 });
 
-
-router.get('/achievements', auth, async (req, res) => {
+router.get('/achievements', authMiddleware, async (req, res) => {
   try {
     const achievements = await achievementService.getUserAchievements(req.user.userId);
     res.json(achievements);
