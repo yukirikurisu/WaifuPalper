@@ -12,6 +12,7 @@ const MagicService  = require('./services/magicService');
 const HealthService = require('./services/healthService');
 const ResentService = require('./services/resentService');
 const characterRoutes = require('./routes/characters');
+const avatarRouter = require('./routes/avatar');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const config = require('./config');
@@ -44,6 +45,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/characters', characterRoutes)
 app.use('/api/clicks', clickRoutes);
 app.use('/api/resentment', resentmentRoutes);
+app.use('/api/avatars', avatarRouter);
 
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));

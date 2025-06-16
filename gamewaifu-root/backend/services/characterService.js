@@ -1,5 +1,3 @@
-// backend/services/characterService.js
-
 const db = require('../db/connection');
 const { HTTPException } = require('../errors/HTTPException');
 const config = require('../config');

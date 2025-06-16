@@ -1,16 +1,24 @@
+// backend/routes/user.js
 const express = require('express');
 const router = express.Router();
-const userService = require('../services/userService');
 const authMiddleware = require('../middleware/auth');
 const db = require('../db/connection');
 
-// Obtener datos del usuario autenticado
 router.get('/me', authMiddleware, async (req, res) => {
   const { userId } = req.user;
 
   try {
     const result = await db.query(
-      'SELECT user_id, username, avatar_stock, registration_date FROM users WHERE user_id = $1',
+      `SELECT
+         u.user_id,
+         u.username,
+         u.avatar_id           AS avatarId,
+         a.avatar_image_url    AS avatarUrl,
+         u.registration_date
+       FROM users u
+       LEFT JOIN avatars a
+         ON u.avatar_id = a.avatar_id
+       WHERE u.user_id = $1`,
       [userId]
     );
 
@@ -24,8 +32,5 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
-// Actualizar avatar del usuario
-router.put('/avatar', authMiddleware, userService.updateAvatar);
 
 module.exports = router;
