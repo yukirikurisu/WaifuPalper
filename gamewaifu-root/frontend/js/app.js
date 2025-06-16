@@ -1,5 +1,5 @@
 import { showTelegramLogin } from './auth/telegramAuth.js';
-import { loadProfile, toggleView } from './js/profile.js';
+import { loadProfile, toggleView } from './game/profile.js';
 const splashScreen = document.getElementById('splash-screen');
 const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');
