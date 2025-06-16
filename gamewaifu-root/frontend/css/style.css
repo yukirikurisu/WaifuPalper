@@ -713,7 +713,7 @@ input:checked + .slider-toggle:before {
   50% { opacity: 0.2; }
 }
 
-/// Profile screen
+/* Profile screen
 
 /* Tarjeta para estadísticas del perfil */
 .profile-stats-card {
