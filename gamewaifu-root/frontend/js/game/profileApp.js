@@ -14,8 +14,10 @@ export class ProfileApp {
   }
   
   initProfile() {
-    document.body.classList.remove('dark-mode');
-    document.body.classList.add('light-mode');
+    // Aplicar modo claro al contenedor
+    this.container.classList.remove('dark-mode');
+    this.container.classList.add('light-mode');
+    
     this.toggleBtn.innerHTML = '<i class="fa-solid fa-mug-saucer"></i>';
     this.toggleBtn.style.backgroundColor = 'black';
     this.toggleBtn.style.color = 'white';
@@ -53,15 +55,19 @@ export class ProfileApp {
     setTimeout(() => {
       if (targetView === 'missions') {
         this.loadMissions();
-        document.body.classList.remove('light-mode');
-        document.body.classList.add('dark-mode');
+        // Cambiar a modo oscuro solo en el contenedor
+        this.container.classList.remove('light-mode');
+        this.container.classList.add('dark-mode');
+        
         this.toggleBtn.innerHTML = '<i class="fa-solid fa-explosion"></i>';
         this.toggleBtn.style.backgroundColor = 'white';
         this.toggleBtn.style.color = 'black';
       } else {
         this.loadProfile();
-        document.body.classList.remove('dark-mode');
-        document.body.classList.add('light-mode');
+        // Cambiar a modo claro solo en el contenedor
+        this.container.classList.remove('dark-mode');
+        this.container.classList.add('light-mode');
+        
         this.toggleBtn.innerHTML = '<i class="fa-solid fa-mug-saucer"></i>';
         this.toggleBtn.style.backgroundColor = 'black';
         this.toggleBtn.style.color = 'white';
@@ -69,7 +75,7 @@ export class ProfileApp {
       this.currentView = targetView;
       overlay.remove();
       
-      // Forzar repintado del contenido
+      // Forzar repintado
       this.container.style.display = 'none';
       this.container.offsetHeight; // Trigger reflow
       this.container.style.display = 'block';

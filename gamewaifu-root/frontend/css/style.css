@@ -716,6 +716,22 @@ input:checked + .slider-toggle:before {
 /* Profile screen
 
 /* Tarjeta para estadísticas del perfil */
+
+#view-container {
+  position: relative;
+  min-height: calc(100vh - 4rem);
+  padding-top: 4rem;
+  transition: background-color 0.5s ease;
+}
+
+#view-container.light-mode {
+  background-color: #fff;
+}
+
+#view-container.dark-mode {
+  background-color: #000000;
+}
+
 .profile-stats-card {
   max-width: 800px;
   margin: 2rem auto 1rem auto;
