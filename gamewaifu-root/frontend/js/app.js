@@ -1,4 +1,5 @@
 import { showTelegramLogin } from './auth/telegramAuth.js';
+import { loadProfile, toggleView } from './js/profile.js';
 const splashScreen = document.getElementById('splash-screen');
 const continueBtn = document.querySelector('.continue-btn');
 const loginModal = document.getElementById('telegram-login-modal');
@@ -52,21 +53,7 @@ const routes = {
   '/profile': {
     view: 'profile',
     controller: async () => {
-      try {
-        const token = localStorage.getItem('authToken');
-        const response = await fetch('/api/user/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error('No se pudo cargar el perfil');
-        const data = await response.json();
-
-        document.getElementById('profile-name').innerText       = data.username;
-        document.getElementById('user-avatar').src              = data.avatarUrl || '/images/default-avatar.png';
-        document.getElementById('profile-characters').innerText = data.charactersCount;
-        document.getElementById('profile-love').innerText       = data.totalLove;
-      } catch (err) {
-        console.error(err);
-      }
+      await loadProfile();
     }
   },
 

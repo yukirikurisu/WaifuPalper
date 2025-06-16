@@ -1,13 +1,93 @@
 let currentView = 'profile';
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.body.style.backgroundColor = 'white';
-  loadProfile();
-});
+export async function loadProfile() {
+  const container = document.getElementById('view-container');
+  container.innerHTML = `
+    <div class="profile-stats-card">
+      <div class="profile-main">
+        <div class="avatar">
+          <img id="user-avatar" src="/images/default-avatar.png" alt="Avatar">
+        </div>
+        <div class="profile-stats">
+          <h2 id="profile-name">Nombre</h2>
+          <p>Nivel: <span id="profile-level">–</span></p>
+          <p>Waifus: <span id="profile-characters">–</span></p>
+          <p>Total Love: <span id="profile-love">–</span> <i class="fas fa-heart"></i></p>
+        </div>
+      </div>
+    </div>
+    <div class="profile-achievements-card">
+      <h3>Logros</h3>
+      <ul id="achievements-list"></ul>
+    </div>
+  `;
 
-document.querySelector('.toggle-view-button').addEventListener('click', toggleView);
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch('/api/user/me', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('No se pudo cargar el perfil');
+    const data = await response.json();
 
-function toggleView() {
+    document.getElementById('profile-name').innerText       = data.username;
+    document.getElementById('user-avatar').src              = data.avatarUrl || '/images/default-avatar.png';
+    document.getElementById('profile-level').innerText        = data.level || '–';
+    document.getElementById('profile-characters').innerText   = data.charactersCount;
+    document.getElementById('profile-love').innerText         = data.totalLove;
+  } catch (err) {
+    console.error(err);
+  }
+
+  try {
+    const res = await fetch('/api/profile/achievements');
+    if (!res.ok) throw new Error('No se pudieron cargar los logros');
+    const achievements = await res.json();
+    const list = document.getElementById('achievements-list');
+    achievements.forEach(a => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <img src="${a.icon_url}" alt="${a.name}" width="32" height="32">
+        <strong>${a.name}</strong> – ${a.description}
+        <em>(${new Date(a.unlocked_at).toLocaleDateString()})</em>
+      `;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function loadMissions() {
+  const container = document.getElementById('view-container');
+  container.innerHTML = `
+    <div class="missions-section" style="max-width:800px; margin:2rem auto; background:#ffb6c1; backdrop-filter: blur(8px); border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); padding: 1.5rem;">
+      <h3>Misiones Diarias</h3>
+      <ul id="missions-list"></ul>
+    </div>
+  `;
+
+  try {
+    const res = await fetch('/api/profile/missions');
+    const missions = await res.json();
+    const list = document.getElementById('missions-list');
+    
+    missions.forEach(m => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${m.name}</strong> – ${m.description}  
+        <progress max="${m.goal}" value="${m.progress}"></progress>
+        ${m.is_completed ? '<span>✔️ Completada</span>' : ''}
+      `;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<p>Error al cargar las misiones.</p>`;
+  }
+}
+
+export function toggleView() {
   const isProfile = currentView === 'profile';
   const targetView = isProfile ? 'missions' : 'profile';
   const overlayColor = isProfile ? 'black' : 'white';
@@ -52,75 +132,4 @@ function toggleView() {
     currentView = targetView;
     overlay.remove();
   }, 600);
-}
-
-async function loadProfile() {
-  const container = document.getElementById('view-container');
-  container.innerHTML = `
-    <div class="profile-stats-card">
-      <div class="profile-main">
-        <div class="avatar">
-          <img id="user-avatar" src="" alt="Avatar">
-        </div>
-        <div class="profile-stats">
-          <h2 id="profile-name">Nombre</h2>
-          <p>Nivel: <span id="profile-level">–</span></p>
-          <p>Waifus: <span id="profile-characters">–</span></p>
-          <p>Total Love: <span id="profile-love">–</span> <i class="fas fa-heart"></i></p>
-        </div>
-      </div>
-    </div>
-    <div class="profile-achievements-card">
-      <h3>Logros</h3>
-      <ul id="achievements-list"></ul>
-    </div>
-  `;
-
-  // Cargar logros vía AJAX
-  try {
-    const res = await fetch('/api/profile/achievements');
-    const achievements = await res.json();
-    const list = document.getElementById('achievements-list');
-    
-    achievements.forEach(a => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <img src="${a.icon_url}" alt="${a.name}" width="32" height="32">
-        <strong>${a.name}</strong> – ${a.description}
-        <em>(${new Date(a.unlocked_at).toLocaleDateString()})</em>
-      `;
-      list.appendChild(li);
-    });
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function loadMissions() {
-  const container = document.getElementById('view-container');
-  container.innerHTML = `
-    <div class="missions-section" style="max-width:800px; margin:2rem auto; background:#ffb6c1; backdrop-filter: blur(8px); border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); padding: 1.5rem;">
-      <h3>Misiones Diarias</h3>
-      <ul id="missions-list"></ul>
-    </div>
-  `;
-
-  try {
-    const res = await fetch('/api/profile/missions');
-    const missions = await res.json();
-    const list = document.getElementById('missions-list');
-    
-    missions.forEach(m => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>${m.name}</strong> – ${m.description}  
-        <progress max="${m.goal}" value="${m.progress}"></progress>
-        ${m.is_completed ? '<span>✔️ Completada</span>' : ''}
-      `;
-      list.appendChild(li);
-    });
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = `<p>Error al cargar las misiones.</p>`;
-  }
 }
